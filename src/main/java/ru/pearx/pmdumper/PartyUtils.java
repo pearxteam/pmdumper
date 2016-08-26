@@ -70,11 +70,10 @@ public class PartyUtils
 
             wr.println("ID | Metadata | Localized Name");
 
-            IForgeRegistry<Item> v = ForgeRegistries.ITEMS;
             Map<String, Integer> m = new HashMap<String, Integer>();
-            for (ResourceLocation loc : v.getKeys())
+            for (Item itm : ForgeRegistries.ITEMS)
             {
-                Item itm = v.getValue(loc);
+                ResourceLocation loc = Item.REGISTRY.getNameForObject(itm);
                 List<ItemStack> l = new ArrayList<ItemStack>();
                 if(itm.getHasSubtypes())
                     itm.getSubItems(itm, null, l);

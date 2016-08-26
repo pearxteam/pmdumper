@@ -25,7 +25,7 @@ group= "ru.pearx.pmdumper" // http://maven.apache.org/guides/mini/guide-naming-c
 archivesBaseName = "pmdumper"
 
 minecraft {
-    version = "1.10.2-12.18.1.2046"
+    version = "1.10.2-12.18.1.2011"
     runDir = "run"
 
     // the mappings can be changed at any time, and must be in the following format.
