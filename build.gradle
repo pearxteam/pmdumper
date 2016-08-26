@@ -80,3 +80,8 @@ processResources
         exclude 'mcmod.info'
     }
 }
+
+manifest
+{
+       attributes 'FMLAT': 'pmdumper_at.cfg'
+}

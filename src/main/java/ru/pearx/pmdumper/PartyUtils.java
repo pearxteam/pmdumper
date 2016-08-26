@@ -1,15 +1,13 @@
 package ru.pearx.pmdumper;
 
-import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.IBakedModel;
+import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.registry.IRegistry;
-import net.minecraft.util.text.translation.I18n;
 import net.minecraftforge.fml.common.registry.*;
-import org.apache.commons.lang3.reflect.FieldUtils;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -28,8 +26,7 @@ public class PartyUtils
         {
             PartyCore.Log.info("[PartyMaker Dumper] Dump started!");
             wr = new PrintWriter(filePath);
-            IRegistry<ResourceLocation, IBakedModel> v = (IRegistry<ResourceLocation, IBakedModel>) FieldUtils.readField(Minecraft.getMinecraft().getRenderItem().getItemModelMesher().getModelManager(), "modelRegistry", true);
-
+            IRegistry<ModelResourceLocation, IBakedModel> v = Minecraft.getMinecraft().getRenderItem().getItemModelMesher().getModelManager().modelRegistry;
             Map<String, Integer> m = new HashMap<String, Integer>();
             for (ResourceLocation loc : v.getKeys())
             {
@@ -47,12 +44,9 @@ public class PartyUtils
             }
 
             PartyCore.Log.info("[PartyMaker Dumper] Dump finished!");
-        } catch (Exception ex)
-        {
-            PartyCore.Log.error("[PartyMaker Dumper] " + ex.toString());
-            PartyCore.Log.info("[PartyMaker Dumper] Dump error!");
-
-        } finally
+        }
+        catch (IOException ex) {}
+        finally
         {
             wr.flush();
             wr.close();
