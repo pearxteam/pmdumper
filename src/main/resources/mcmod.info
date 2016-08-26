@@ -1,0 +1,15 @@
+[
+{
+  "modid": "pmdumper",
+  "name": "Partymaker Dumper",
+  "description": "Dump all the things!",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["mrAppleXZ"],
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]
