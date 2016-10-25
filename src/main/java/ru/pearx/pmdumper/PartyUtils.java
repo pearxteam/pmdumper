@@ -10,6 +10,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.registry.IRegistry;
 import net.minecraftforge.fml.common.registry.*;
+import ru.pearx.pmdumper.utils.Table;
 
 import java.io.PrintWriter;
 import java.util.*;
@@ -81,8 +82,8 @@ public class PartyUtils
 
     public static void dumpItems(String filePath)
     {
-        StringBuilder sb = new StringBuilder();
-        sb.append("ID | Metadata | Localized Name\n");
+        Table t = new Table();
+        t.add("ID", "Metadata", "Localized Name");
 
         Map<String, Integer> m = new HashMap<String, Integer>(); // model count for resource domain
         for (Item itm : ForgeRegistries.ITEMS)
@@ -100,10 +101,10 @@ public class PartyUtils
                     m.put(s, m.get(s) + 1);
                 else
                     m.put(s, 1);
-                sb.append(loc.toString() + " | " + stack.getMetadata() + " | " + stack.getDisplayName() + "\n");
+                t.add(loc.toString(), Integer.toString(stack.getMetadata()), stack.getDisplayName());
             }
         }
-        dump(filePath, m, sb.toString());
+        dump(filePath, m, t.print());
     }
 
     private static void dump(String filePath, Map<String, Integer> m, String str)
