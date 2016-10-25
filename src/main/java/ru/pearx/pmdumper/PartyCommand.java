@@ -21,7 +21,7 @@ public class PartyCommand extends CommandBase
     @Override
     public String getCommandUsage(ICommandSender sender)
     {
-        return "/pmdumper <models|items>";
+        return "/pmdumper <models|items|sounds|smelting>";
     }
 
     @Override
@@ -30,16 +30,30 @@ public class PartyCommand extends CommandBase
         if(args.length >= 1)
         {
             String s = Minecraft.getMinecraft().mcDataDir.toString() + "/pmdumper/";
+            String dn = "";
             if(args[0].equals("models"))
             {
-                PartyUtils.dumpModels(s + "models.txt");
-                sender.addChatMessage(new TextComponentString("OK!"));
-                return;
+                dn = "models.txt";
+                PartyUtils.dumpModels(s + dn);
             }
             else if(args[0].equals("items"))
             {
-                PartyUtils.dumpItems(s + "items.txt");
-                sender.addChatMessage(new TextComponentString("OK!"));
+                dn = "items.txt";
+                PartyUtils.dumpItems(s + dn);
+            }
+            else if(args[0].equals("sounds"))
+            {
+                dn = "sounds.txt";
+                PartyUtils.dumpSounds(s + dn);
+            }
+            else if(args[0].equals("smelting"))
+            {
+                dn = "recipesMelting.txt";
+                PartyUtils.dumpMeltingRecipes(s + dn);
+            }
+            if(dn != "")
+            {
+                sender.addChatMessage(new TextComponentString("OK! Dump saved in your .minecraft directory."));
                 return;
             }
         }
