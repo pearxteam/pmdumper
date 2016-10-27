@@ -1,15 +1,23 @@
 package ru.pearx.pmdumper;
 
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockStaticLiquid;
+import net.minecraft.block.properties.IProperty;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
+import net.minecraft.item.ItemBucket;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.FurnaceRecipes;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.registry.IRegistry;
+import net.minecraftforge.fluids.*;
 import net.minecraftforge.fml.common.registry.*;
+import org.lwjgl.input.Mouse;
 import ru.pearx.pmdumper.utils.Table;
 
 import java.io.PrintWriter;
@@ -20,10 +28,10 @@ import java.util.*;
  */
 public class PartyUtils
 {
-    public static void dumpMeltingRecipes(String filePath)
+    public static void dumpRecipesSmelting(String filePath)
     {
-        StringBuilder sb = new StringBuilder();
-        sb.append("In Localized > Out Localized  |  In [Meta] xCount > Out [Meta] xCount \n");
+        Table t = new Table();
+        t.add("In Localized > Out Localized", "In > Out");
         int count = 0;
         for (Map.Entry<ItemStack, ItemStack> rec : FurnaceRecipes.instance().getSmeltingList().entrySet())
         {
@@ -33,34 +41,29 @@ public class PartyUtils
             String idIn = Item.REGISTRY.getNameForObject(in.getItem()).toString();
             String idOut = Item.REGISTRY.getNameForObject(out.getItem()).toString();
 
-            sb.append(in.getDisplayName() + " x" + in.stackSize);
-            sb.append(" > ");
-            sb.append(out.getDisplayName() + " x" + out.stackSize);
-            sb.append("  |  ");
-            sb.append(idIn + "[" + (in.getMetadata() == 32767 ? "any" : in.getMetadata())+ "]" + " x" + in.stackSize);
-            sb.append(" > ");
-            sb.append(idOut + "[" + out.getMetadata() + "]" + " x" + out.stackSize);
+            t.add(
+                    in.getDisplayName() + " x" + in.stackSize
+                            + " > " +
+                    out.getDisplayName() + " x" + out.stackSize,
 
-            sb.append("\n");
+                    idIn + "[" + (in.getMetadata() == 32767 ? "any" : in.getMetadata()) + "]" + " x" + in.stackSize
+                            + " > " +
+                    idOut + "[" + out.getMetadata() + "]" + " x" + out.stackSize);
         }
-        dump(filePath, sb.toString(), "Total: " + count);
+        dump(filePath, t.print(), "Total: " + count);
     }
 
     public static void dumpSounds(String filePath)
     {
-        StringBuilder sb = new StringBuilder();
+        Table t = new Table();
         Map<String, Integer> m = new HashMap<String, Integer>();
-        sb.append("Registry name\n");
+        t.add("Registry name");
         for(SoundEvent event : ForgeRegistries.SOUND_EVENTS)
         {
-            String s = event.getRegistryName().getResourceDomain();
-            sb.append(event.getRegistryName().toString() + "\n");
-            if(m.containsKey(s))
-                m.put(s, m.get(s) + 1);
-            else
-                m.put(s, 1);
+            addToMap(m, event.getRegistryName().getResourceDomain());
+            t.add(event.getRegistryName().toString());
         }
-        dump(filePath, m, sb.toString());
+        dump(filePath, m, t.print());
     }
 
     public static void dumpModels(String filePath)
@@ -70,12 +73,8 @@ public class PartyUtils
         Map<String, Integer> m = new HashMap<String, Integer>();
         for (ResourceLocation loc : v.getKeys())
         {
-            String s = loc.getResourceDomain();
-            if (m.containsKey(s))
-                m.put(s, m.get(s) + 1);
-            else
-                m.put(s, 1);
             sb.append(loc.toString() + "\n");
+            addToMap(m, loc.getResourceDomain());
         }
         dump(filePath, m, sb.toString());
     }
@@ -96,13 +95,43 @@ public class PartyUtils
                 l.add(new ItemStack(itm, 1, 0));
             for (ItemStack stack : l)
             {
-                String s = loc.getResourceDomain();
-                if (m.containsKey(s))
-                    m.put(s, m.get(s) + 1);
-                else
-                    m.put(s, 1);
                 t.add(loc.toString(), Integer.toString(stack.getMetadata()), stack.getDisplayName());
+                addToMap(m, loc.getResourceDomain());
             }
+        }
+        dump(filePath, m, t.print());
+    }
+
+    public static void dumpBlocks(String filePath)
+    {
+        Table t = new Table();
+        t.add("ID", "Localized Name");
+        Map<String, Integer> m = new HashMap<String, Integer>();
+        for(Block b : ForgeRegistries.BLOCKS)
+        {
+            ResourceLocation loc = Block.REGISTRY.getNameForObject(b);
+            t.add(loc.toString(), b.getLocalizedName());
+            addToMap(m, loc.getResourceDomain());
+        }
+        dump(filePath, m, t.print());
+    }
+
+    public static void dumpFluids(String filePath)
+    {
+        Table t = new Table();
+        t.add("Fluid Name", "Fluid Localized Name", "Fluid Block ID", "Gaseous");
+        Map<String, Integer> m = new HashMap<String, Integer>();
+        for(Map.Entry<String, Fluid> e : FluidRegistry.getRegisteredFluids().entrySet())
+        {
+            Fluid fl = e.getValue();
+            ResourceLocation loc = fl.getStill();
+            t.add(
+                    fl.getName(),
+                    fl.getLocalizedName(new FluidStack(fl, 1)),
+                    (fl.getBlock() != null ? Block.REGISTRY.getNameForObject(fl.getBlock()).toString() : "no"),
+                    Boolean.toString(fl.isGaseous())
+            );
+            addToMap(m, loc.getResourceDomain());
         }
         dump(filePath, m, t.print());
     }
@@ -151,5 +180,13 @@ public class PartyUtils
             wr.flush();
             wr.close();
         }
+    }
+
+    private static void addToMap(Map<String, Integer> m, String modid)
+    {
+        if (m.containsKey(modid))
+            m.put(modid, m.get(modid) + 1);
+        else
+            m.put(modid, 1);
     }
 }

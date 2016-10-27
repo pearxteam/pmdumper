@@ -21,7 +21,7 @@ public class PartyCommand extends CommandBase
     @Override
     public String getCommandUsage(ICommandSender sender)
     {
-        return "/pmdumper <models|items|sounds|smelting>";
+        return "/pmdumper <models|items|sounds|recipes_smelting|blocks|fluids>";
     }
 
     @Override
@@ -46,10 +46,21 @@ public class PartyCommand extends CommandBase
                 dn = "sounds.txt";
                 PartyUtils.dumpSounds(s + dn);
             }
-            else if(args[0].equals("smelting"))
+            else if(args[0].equals("recipes_smelting"))
             {
-                dn = "recipesMelting.txt";
-                PartyUtils.dumpMeltingRecipes(s + dn);
+                dn = "recipes_smelting.txt";
+                PartyUtils.dumpRecipesSmelting(s + dn);
+            }
+            else if(args[0].equals("blocks"))
+            {
+                sender.addChatMessage(new TextComponentString("Block dumping is currently WIP!"));
+                dn = "blocks.txt";
+                PartyUtils.dumpBlocks(s + dn);
+            }
+            else if(args[0].equals("fluids"))
+            {
+                dn = "fluids.txt";
+                PartyUtils.dumpFluids(s + dn);
             }
             if(dn != "")
             {
