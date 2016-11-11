@@ -15,6 +15,10 @@ import net.minecraft.item.crafting.FurnaceRecipes;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.registry.IRegistry;
+import net.minecraft.world.World;
+import net.minecraft.world.storage.loot.LootTableList;
+import net.minecraft.world.storage.loot.LootTableManager;
+import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.fluids.*;
 import net.minecraftforge.fml.common.registry.*;
 import org.lwjgl.input.Mouse;
@@ -44,13 +48,18 @@ public class PartyUtils
             t.add(
                     in.getDisplayName() + " x" + in.stackSize
                             + " > " +
-                    out.getDisplayName() + " x" + out.stackSize,
+                            out.getDisplayName() + " x" + out.stackSize,
 
                     idIn + "[" + (in.getMetadata() == 32767 ? "any" : in.getMetadata()) + "]" + " x" + in.stackSize
                             + " > " +
-                    idOut + "[" + out.getMetadata() + "]" + " x" + out.stackSize);
+                            idOut + "[" + out.getMetadata() + "]" + " x" + out.stackSize);
         }
         dump(filePath, t.print(), "Total: " + count);
+    }
+
+    public static void dumpLootTables(String filePath)
+    {
+        //todo
     }
 
     public static void dumpSounds(String filePath)
