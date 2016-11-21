@@ -11,7 +11,7 @@ import java.io.File;
 /**
  * Created by mrAppleXZ on 07.08.16.
  */
-@Mod(modid = PartyCore.ID, version = "${version}", name = PartyCore.Name, clientSideOnly = true)
+@Mod(modid = PartyCore.ID, version = "1.11-1.3.0", name = PartyCore.Name, clientSideOnly = true)
 public class PartyCore
 {
     public static final String ID = "pmdumper";
