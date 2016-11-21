@@ -13,13 +13,13 @@ import net.minecraft.util.text.TextComponentString;
 public class PartyCommand extends CommandBase
 {
     @Override
-    public String getCommandName()
+    public String getName()
     {
         return "pmdumper";
     }
 
     @Override
-    public String getCommandUsage(ICommandSender sender)
+    public String getUsage(ICommandSender iCommandSender)
     {
         return "/pmdumper <models|items|sounds|recipes_smelting|blocks|fluids>";
     }
@@ -53,7 +53,7 @@ public class PartyCommand extends CommandBase
             }
             else if(args[0].equals("blocks"))
             {
-                sender.addChatMessage(new TextComponentString("Block dumping is currently WIP!"));
+                sender.sendMessage(new TextComponentString("Block dumping is currently WIP!"));
                 dn = "blocks.txt";
                 PartyUtils.dumpBlocks(s + dn);
             }
@@ -64,10 +64,10 @@ public class PartyCommand extends CommandBase
             }
             if(dn != "")
             {
-                sender.addChatMessage(new TextComponentString("OK! Dump saved in your .minecraft directory."));
+                sender.sendMessage(new TextComponentString("OK! Dump saved in your .minecraft directory."));
                 return;
             }
         }
-        sender.addChatMessage(new TextComponentString(getCommandUsage(sender)));
+        sender.sendMessage(new TextComponentString(getUsage(sender)));
     }
 }

@@ -12,6 +12,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemBucket;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.FurnaceRecipes;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.registry.IRegistry;
@@ -24,6 +25,7 @@ import net.minecraftforge.fml.common.registry.*;
 import org.lwjgl.input.Mouse;
 import ru.pearx.pmdumper.utils.Table;
 
+import javax.annotation.Nonnull;
 import java.io.PrintWriter;
 import java.util.*;
 
@@ -46,13 +48,13 @@ public class PartyUtils
             String idOut = Item.REGISTRY.getNameForObject(out.getItem()).toString();
 
             t.add(
-                    in.getDisplayName() + " x" + in.stackSize
+                    in.getDisplayName() + " x" + in.getCount()
                             + " > " +
-                            out.getDisplayName() + " x" + out.stackSize,
+                            out.getDisplayName() + " x" + out.getCount(),
 
-                    idIn + "[" + (in.getMetadata() == 32767 ? "any" : in.getMetadata()) + "]" + " x" + in.stackSize
+                    idIn + "[" + (in.getMetadata() == 32767 ? "any" : in.getMetadata()) + "]" + " x" + in.getCount()
                             + " > " +
-                            idOut + "[" + out.getMetadata() + "]" + " x" + out.stackSize);
+                            idOut + "[" + out.getMetadata() + "]" + " x" + out.getCount());
         }
         dump(filePath, t.print(), "Total: " + count);
     }
@@ -97,7 +99,8 @@ public class PartyUtils
         for (Item itm : ForgeRegistries.ITEMS)
         {
             ResourceLocation loc = Item.REGISTRY.getNameForObject(itm);
-            List<ItemStack> l = new ArrayList<ItemStack>();
+            @Nonnull
+            NonNullList<ItemStack> l = NonNullList.create();
             if (itm.getHasSubtypes())
                 itm.getSubItems(itm, null, l);
             else
