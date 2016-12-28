@@ -11,7 +11,7 @@ import java.io.File;
 /**
  * Created by mrAppleXZ on 07.08.16.
  */
-@Mod(modid = PartyCore.ID, version = "1.1x-1.4.0", name = PartyCore.Name, clientSideOnly = true)
+@Mod(modid = PartyCore.ID, version = "1.1x-1.4.0", name = PartyCore.Name, acceptedMinecraftVersions = "1.11,1.11.2,1.10.2,1.10")
 public class PartyCore
 {
     public static final String ID = "pmdumper";

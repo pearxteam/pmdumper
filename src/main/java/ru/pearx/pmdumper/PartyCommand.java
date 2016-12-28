@@ -79,7 +79,7 @@ public class PartyCommand extends CommandBase
         }
         catch(IOException e)
         {
-            
+
         }
     }
 }
