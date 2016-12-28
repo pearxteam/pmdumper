@@ -6,6 +6,10 @@ import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.text.TextComponentString;
+import ru.pearx.pmdumper.utils.TableFormat;
+
+import java.io.File;
+import java.io.IOException;
 
 /**
  * Created by mrAppleXZ on 26.08.16.
@@ -21,53 +25,61 @@ public class PartyCommand extends CommandBase
     @Override
     public String getUsage(ICommandSender iCommandSender)
     {
-        return "/pmdumper <models|items|sounds|recipes_smelting|blocks|fluids>";
+        return "Usage: /pmdumper <models|items|sounds|recipes_smelting|blocks|fluids> <csv|txt>. Format ";
     }
 
     @Override
     public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException
     {
-        if(args.length >= 1)
+        try
         {
-            String s = Minecraft.getMinecraft().mcDataDir.toString() + "/pmdumper/";
-            String dn = "";
-            if(args[0].equals("models"))
+            if (args.length >= 2)
             {
-                dn = "models.txt";
-                PartyUtils.dumpModels(s + dn);
-            }
-            else if(args[0].equals("items"))
-            {
-                dn = "items.txt";
-                PartyUtils.dumpItems(s + dn);
-            }
-            else if(args[0].equals("sounds"))
-            {
-                dn = "sounds.txt";
-                PartyUtils.dumpSounds(s + dn);
-            }
-            else if(args[0].equals("recipes_smelting"))
-            {
-                dn = "recipes_smelting.txt";
-                PartyUtils.dumpRecipesSmelting(s + dn);
-            }
-            else if(args[0].equals("blocks"))
-            {
-                sender.sendMessage(new TextComponentString("Block dumping is currently WIP!"));
-                dn = "blocks.txt";
-                PartyUtils.dumpBlocks(s + dn);
-            }
-            else if(args[0].equals("fluids"))
-            {
-                dn = "fluids.txt";
-                PartyUtils.dumpFluids(s + dn);
-            }
-            if(dn != "")
-            {
-                sender.sendMessage(new TextComponentString("OK! Dump saved in your .minecraft directory."));
+                String s = new File(Minecraft.getMinecraft().mcDataDir, "pmdumper").getCanonicalPath() + File.separator;
+                TableFormat format;
+                switch (args[1])
+                {
+                    case "txt":
+                        format = TableFormat.Txt;
+                        break;
+                    case "csv":
+                        format = TableFormat.Csv;
+                        break;
+                    default:
+                        sender.sendMessage(new TextComponentString(getUsage(sender)));
+                        return;
+                }
+                if (args[0].equals("models"))
+                {
+                    PartyUtils.dumpModels(s + args[0], format);
+                } else if (args[0].equals("items"))
+                {
+                    PartyUtils.dumpItems(s + args[0], format);
+                } else if (args[0].equals("sounds"))
+                {
+                    PartyUtils.dumpSounds(s + args[0], format);
+                } else if (args[0].equals("recipes_smelting"))
+                {
+                    PartyUtils.dumpRecipesSmelting(s + args[0], format);
+                } else if (args[0].equals("blocks"))
+                {
+                    sender.sendMessage(new TextComponentString("Block dumping is currently WIP!"));
+                    PartyUtils.dumpBlocks(s + args[0], format);
+                } else if (args[0].equals("fluids"))
+                {
+                    PartyUtils.dumpFluids(s + args[0], format);
+                } else
+                {
+                    return;
+                }
+                sender.sendMessage(new TextComponentString("OK! Dump saved in \"" + s + "\" directory."));
                 return;
             }
+            sender.sendMessage(new TextComponentString(getUsage(sender)));
         }
-        sender.sendMessage(new TextComponentString(getUsage(sender)));
+        catch(IOException e)
+        {
+            
+        }
     }
 }

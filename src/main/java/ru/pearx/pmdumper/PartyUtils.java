@@ -24,6 +24,7 @@ import net.minecraftforge.fluids.*;
 import net.minecraftforge.fml.common.registry.*;
 import org.lwjgl.input.Mouse;
 import ru.pearx.pmdumper.utils.Table;
+import ru.pearx.pmdumper.utils.TableFormat;
 
 import javax.annotation.Nonnull;
 import java.io.PrintWriter;
@@ -34,9 +35,9 @@ import java.util.*;
  */
 public class PartyUtils
 {
-    public static void dumpRecipesSmelting(String filePath)
+    public static void dumpRecipesSmelting(String filePath, TableFormat f)
     {
-        Table t = new Table();
+        Table t = new Table(f);
         t.add("In Localized > Out Localized", "In > Out");
         int count = 0;
         for (Map.Entry<ItemStack, ItemStack> rec : FurnaceRecipes.instance().getSmeltingList().entrySet())
@@ -56,7 +57,7 @@ public class PartyUtils
                             + " > " +
                             idOut + "[" + out.getMetadata() + "]" + " x" + out.getCount());
         }
-        dump(filePath, t.print(), "Total: " + count);
+        dump(filePath, t, "Total: " + count);
     }
 
     public static void dumpLootTables(String filePath)
@@ -64,9 +65,9 @@ public class PartyUtils
         //todo
     }
 
-    public static void dumpSounds(String filePath)
+    public static void dumpSounds(String filePath, TableFormat f)
     {
-        Table t = new Table();
+        Table t = new Table(f);
         Map<String, Integer> m = new HashMap<String, Integer>();
         t.add("Registry name");
         for(SoundEvent event : ForgeRegistries.SOUND_EVENTS)
@@ -74,25 +75,26 @@ public class PartyUtils
             addToMap(m, event.getRegistryName().getResourceDomain());
             t.add(event.getRegistryName().toString());
         }
-        dump(filePath, m, t.print());
+        dump(filePath, t, m);
     }
 
-    public static void dumpModels(String filePath)
+    public static void dumpModels(String filePath, TableFormat f)
     {
-        StringBuilder sb = new StringBuilder();
+        Table t = new Table(f);
+        t.add("Name");
         IRegistry<ModelResourceLocation, IBakedModel> v = Minecraft.getMinecraft().getRenderItem().getItemModelMesher().getModelManager().modelRegistry;
         Map<String, Integer> m = new HashMap<String, Integer>();
         for (ResourceLocation loc : v.getKeys())
         {
-            sb.append(loc.toString() + "\n");
+            t.add(loc.toString());
             addToMap(m, loc.getResourceDomain());
         }
-        dump(filePath, m, sb.toString());
+        dump(filePath, t, m);
     }
 
-    public static void dumpItems(String filePath)
+    public static void dumpItems(String filePath, TableFormat f)
     {
-        Table t = new Table();
+        Table t = new Table(f);
         t.add("ID", "Metadata", "Localized Name");
 
         Map<String, Integer> m = new HashMap<String, Integer>(); // model count for resource domain
@@ -111,12 +113,12 @@ public class PartyUtils
                 addToMap(m, loc.getResourceDomain());
             }
         }
-        dump(filePath, m, t.print());
+        dump(filePath, t, m);
     }
 
-    public static void dumpBlocks(String filePath)
+    public static void dumpBlocks(String filePath, TableFormat f)
     {
-        Table t = new Table();
+        Table t = new Table(f);
         t.add("ID", "Localized Name");
         Map<String, Integer> m = new HashMap<String, Integer>();
         for(Block b : ForgeRegistries.BLOCKS)
@@ -125,12 +127,12 @@ public class PartyUtils
             t.add(loc.toString(), b.getLocalizedName());
             addToMap(m, loc.getResourceDomain());
         }
-        dump(filePath, m, t.print());
+        dump(filePath, t, m);
     }
 
-    public static void dumpFluids(String filePath)
+    public static void dumpFluids(String filePath, TableFormat f)
     {
-        Table t = new Table();
+        Table t = new Table(f);
         t.add("Fluid Name", "Fluid Localized Name", "Fluid Block ID", "Gaseous");
         Map<String, Integer> m = new HashMap<String, Integer>();
         for(Map.Entry<String, Fluid> e : FluidRegistry.getRegisteredFluids().entrySet())
@@ -145,10 +147,10 @@ public class PartyUtils
             );
             addToMap(m, loc.getResourceDomain());
         }
-        dump(filePath, m, t.print());
+        dump(filePath, t, m);
     }
 
-    private static void dump(String filePath, Map<String, Integer> m, String str)
+    private static void dump(String filePath, Table t, Map<String, Integer> m)
     {
         StringBuilder sb = new StringBuilder();
         List<Map.Entry<String, Integer>> lst = new ArrayList<Map.Entry<String, Integer>>(m.entrySet());
@@ -167,19 +169,31 @@ public class PartyUtils
             sb.append(entr.getKey() + ": " + entr.getValue() + "\n");
         }
         sb.append("Total: " + total);
-        dump(filePath, str, sb.toString());
+        dump(filePath, t, sb.toString());
     }
 
-    private static void dump(String filePath, String str, String down)
+    private static void dump(String filePath, Table t, String down)
     {
+        switch (t.Format)
+        {
+            case Csv:
+                filePath += ".csv";
+                break;
+            case  Txt:
+                filePath += ".txt";
+                break;
+        }
         PrintWriter wr = null;
         try
         {
             PartyCore.Log.info("[PartyMaker Dumper] Dump started!");
             wr = new PrintWriter(filePath);
-            wr.println(str);
-            wr.println("===================================");
-            wr.println(down);
+            wr.println(t.print());
+            if(t.Format == TableFormat.Txt)
+            {
+                wr.println("===================================");
+                wr.println(down);
+            }
 
             PartyCore.Log.info("[PartyMaker Dumper] Dump finished!");
         } catch (Exception ex)

@@ -9,11 +9,12 @@ import java.util.List;
  */
 public class Table
 {
+    public TableFormat Format;
     public List<List<String>> data = new ArrayList<List<String>>();
 
-    public Table()
+    public Table(TableFormat f)
     {
-
+        Format = f;
     }
 
     public void add(String... strs)
@@ -26,54 +27,69 @@ public class Table
         StringBuilder sb = new StringBuilder();
         if(data.size() > 0)
         {
-            int[] maxes = new int[data.get(0).size()];
-            for(List<String> l : data)
+            if(Format == TableFormat.Txt)
             {
-                for(int i = 0; i < maxes.length; i++)
+                int[] maxes = new int[data.get(0).size()];
+                for (List<String> l : data)
                 {
-                    if(maxes[i] < l.get(i).length())
-                        maxes[i] = l.get(i).length();
-                }
-            }
-            int allSize = 0;
-            for(int i : maxes)
-            {
-                allSize += i; //add max
-                allSize += 1; //add |
-            }
-            allSize += 1; //remove | and add 2 =.
-
-            //+---+---+-----+
-            sb.append("+");
-            for(int i = 0; i < maxes.length; i++)
-            {
-                sb.append(PartyCommonUtils.getMultichars("-", maxes[i]));
-                sb.append("+");
-            }
-            sb.append("\n");
-            for(List<String> l : data)
-            {
-                //|one|two|three|
-                sb.append("|");
-                for(int i = 0; i < maxes.length; i++)
-                {
-                    sb.append(l.get(i));
-                    sb.append(getSpaces(l.get(i), maxes[i]));
-                    if(i < maxes.length - 1)
+                    for (int i = 0; i < maxes.length; i++)
                     {
-                        sb.append("|");
+                        if (maxes[i] < l.get(i).length())
+                            maxes[i] = l.get(i).length();
                     }
                 }
-                sb.append("|");
-                sb.append("\n");
+                int allSize = 0;
+                for (int i : maxes)
+                {
+                    allSize += i; //add max
+                    allSize += 1; //add |
+                }
+                allSize += 1; //remove | and add 2 =.
+
                 //+---+---+-----+
                 sb.append("+");
-                for(int i = 0; i < maxes.length; i++)
+                for (int i = 0; i < maxes.length; i++)
                 {
                     sb.append(PartyCommonUtils.getMultichars("-", maxes[i]));
                     sb.append("+");
                 }
                 sb.append("\n");
+                for (List<String> l : data)
+                {
+                    //|one|two|three|
+                    sb.append("|");
+                    for (int i = 0; i < maxes.length; i++)
+                    {
+                        sb.append(l.get(i));
+                        sb.append(getSpaces(l.get(i), maxes[i]));
+                        if (i < maxes.length - 1)
+                        {
+                            sb.append("|");
+                        }
+                    }
+                    sb.append("|");
+                    sb.append("\n");
+                    //+---+---+-----+
+                    sb.append("+");
+                    for (int i = 0; i < maxes.length; i++)
+                    {
+                        sb.append(PartyCommonUtils.getMultichars("-", maxes[i]));
+                        sb.append("+");
+                    }
+                    sb.append("\n");
+                }
+            }
+            else if(Format == TableFormat.Csv)
+            {
+                for(List<String> row : data)
+                {
+                    for(String s : row)
+                    {
+                        sb.append("\"" + s.replace("\"", "\"\"") + "\"" + ",");
+                    }
+                    sb.deleteCharAt(sb.length() - 1);
+                    sb.append("\n");
+                }
             }
         }
         else
