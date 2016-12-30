@@ -25,61 +25,54 @@ public class PartyCommand extends CommandBase
     @Override
     public String getUsage(ICommandSender iCommandSender)
     {
-        return "Usage: /pmdumper <models|items|sounds|recipes_smelting|blocks|fluids> <csv|txt>. Format ";
+        return "Usage: /pmdumper <models|items|sounds|recipes_smelting|blocks|fluids> <csv|txt>.";
     }
 
     @Override
     public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException
     {
-        try
+        if (args.length >= 2)
         {
-            if (args.length >= 2)
+            String s = new File(Minecraft.getMinecraft().mcDataDir, "pmdumper") + File.separator;
+            TableFormat format;
+            switch (args[1])
             {
-                String s = new File(Minecraft.getMinecraft().mcDataDir, "pmdumper").getCanonicalPath() + File.separator;
-                TableFormat format;
-                switch (args[1])
-                {
-                    case "txt":
-                        format = TableFormat.Txt;
-                        break;
-                    case "csv":
-                        format = TableFormat.Csv;
-                        break;
-                    default:
-                        sender.sendMessage(new TextComponentString(getUsage(sender)));
-                        return;
-                }
-                if (args[0].equals("models"))
-                {
-                    PartyUtils.dumpModels(s + args[0], format);
-                } else if (args[0].equals("items"))
-                {
-                    PartyUtils.dumpItems(s + args[0], format);
-                } else if (args[0].equals("sounds"))
-                {
-                    PartyUtils.dumpSounds(s + args[0], format);
-                } else if (args[0].equals("recipes_smelting"))
-                {
-                    PartyUtils.dumpRecipesSmelting(s + args[0], format);
-                } else if (args[0].equals("blocks"))
-                {
-                    sender.sendMessage(new TextComponentString("Block dumping is currently WIP!"));
-                    PartyUtils.dumpBlocks(s + args[0], format);
-                } else if (args[0].equals("fluids"))
-                {
-                    PartyUtils.dumpFluids(s + args[0], format);
-                } else
-                {
+                case "txt":
+                    format = TableFormat.Txt;
+                    break;
+                case "csv":
+                    format = TableFormat.Csv;
+                    break;
+                default:
+                    sender.sendMessage(new TextComponentString(getUsage(sender)));
                     return;
-                }
-                sender.sendMessage(new TextComponentString("OK! Dump saved in \"" + s + "\" directory."));
+            }
+            if (args[0].equals("models"))
+            {
+                PartyUtils.dumpModels(s + args[0], format);
+            } else if (args[0].equals("items"))
+            {
+                PartyUtils.dumpItems(s + args[0], format);
+            } else if (args[0].equals("sounds"))
+            {
+                PartyUtils.dumpSounds(s + args[0], format);
+            } else if (args[0].equals("recipes_smelting"))
+            {
+                PartyUtils.dumpRecipesSmelting(s + args[0], format);
+            } else if (args[0].equals("blocks"))
+            {
+                sender.sendMessage(new TextComponentString("Block dumping is currently WIP!"));
+                PartyUtils.dumpBlocks(s + args[0], format);
+            } else if (args[0].equals("fluids"))
+            {
+                PartyUtils.dumpFluids(s + args[0], format);
+            } else
+            {
                 return;
             }
-            sender.sendMessage(new TextComponentString(getUsage(sender)));
+            sender.sendMessage(new TextComponentString("OK! Dump saved in .minecraft directory."));
+            return;
         }
-        catch(IOException e)
-        {
-
-        }
+        sender.sendMessage(new TextComponentString(getUsage(sender)));
     }
 }
