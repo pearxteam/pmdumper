@@ -37,7 +37,7 @@ public class PartyUtils
 {
     public static void dumpRecipesSmelting(String filePath, TableFormat f)
     {
-        Table t = new Table(f);
+        Table t = new Table(f, -1);
         t.add("In Localized > Out Localized", "In > Out");
         int count = 0;
         for (Map.Entry<ItemStack, ItemStack> rec : FurnaceRecipes.instance().getSmeltingList().entrySet())
@@ -67,7 +67,7 @@ public class PartyUtils
 
     public static void dumpSounds(String filePath, TableFormat f)
     {
-        Table t = new Table(f);
+        Table t = new Table(f, 0);
         Map<String, Integer> m = new HashMap<String, Integer>();
         t.add("Registry name");
         for(SoundEvent event : ForgeRegistries.SOUND_EVENTS)
@@ -80,7 +80,7 @@ public class PartyUtils
 
     public static void dumpModels(String filePath, TableFormat f)
     {
-        Table t = new Table(f);
+        Table t = new Table(f, 0);
         t.add("Name");
         IRegistry<ModelResourceLocation, IBakedModel> v = Minecraft.getMinecraft().getRenderItem().getItemModelMesher().getModelManager().modelRegistry;
         Map<String, Integer> m = new HashMap<String, Integer>();
@@ -94,7 +94,7 @@ public class PartyUtils
 
     public static void dumpItems(String filePath, TableFormat f)
     {
-        Table t = new Table(f);
+        Table t = new Table(f, 0);
         t.add("ID", "Metadata", "Localized Name");
 
         Map<String, Integer> m = new HashMap<String, Integer>(); // model count for resource domain
@@ -118,7 +118,7 @@ public class PartyUtils
 
     public static void dumpBlocks(String filePath, TableFormat f)
     {
-        Table t = new Table(f);
+        Table t = new Table(f, 0);
         t.add("ID", "Localized Name");
         Map<String, Integer> m = new HashMap<String, Integer>();
         for(Block b : ForgeRegistries.BLOCKS)
@@ -132,7 +132,7 @@ public class PartyUtils
 
     public static void dumpFluids(String filePath, TableFormat f)
     {
-        Table t = new Table(f);
+        Table t = new Table(f, 0);
         t.add("Fluid Name", "Fluid Localized Name", "Fluid Block ID", "Gaseous");
         Map<String, Integer> m = new HashMap<String, Integer>();
         for(Map.Entry<String, Fluid> e : FluidRegistry.getRegisteredFluids().entrySet())

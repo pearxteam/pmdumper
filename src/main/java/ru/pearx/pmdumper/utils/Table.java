@@ -1,8 +1,6 @@
 package ru.pearx.pmdumper.utils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 /**
  * Created by me on 25.10.16.
@@ -10,11 +8,13 @@ import java.util.List;
 public class Table
 {
     public TableFormat Format;
+    public int ColumnToSort;
     public List<List<String>> data = new ArrayList<List<String>>();
 
-    public Table(TableFormat f)
+    public Table(TableFormat f, int columnToSort)
     {
         Format = f;
+        ColumnToSort = columnToSort;
     }
 
     public void add(String... strs)
@@ -22,8 +22,27 @@ public class Table
         data.add(Arrays.asList(strs));
     }
 
+    public void sort()
+    {
+        if(ColumnToSort < 0)
+            return;
+        Collections.sort(data, new Comparator<List<String>>()
+        {
+            @Override
+            public int compare(List<String> e1, List<String> e2)
+            {
+
+                String val1 = e1.get(ColumnToSort);
+                String val2 = e2.get(ColumnToSort);
+
+                return val1.compareTo(val2);
+            }
+        });
+    }
+
     public String print()
     {
+        sort();
         StringBuilder sb = new StringBuilder();
         if(data.size() > 0)
         {
