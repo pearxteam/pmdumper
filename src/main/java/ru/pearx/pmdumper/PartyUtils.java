@@ -12,7 +12,6 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemBucket;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.FurnaceRecipes;
-import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundEvent;
 import net.minecraft.util.registry.IRegistry;
@@ -49,13 +48,13 @@ public class PartyUtils
             String idOut = Item.REGISTRY.getNameForObject(out.getItem()).toString();
 
             t.add(
-                    in.getDisplayName() + " x" + in.getCount()
+                    in.getDisplayName() + " x" + in.stackSize
                             + " > " +
-                            out.getDisplayName() + " x" + out.getCount(),
+                            out.getDisplayName() + " x" + out.stackSize,
 
-                    idIn + "[" + (in.getMetadata() == 32767 ? "any" : in.getMetadata()) + "]" + " x" + in.getCount()
+                    idIn + "[" + (in.getMetadata() == 32767 ? "any" : in.getMetadata()) + "]" + " x" + in.stackSize
                             + " > " +
-                            idOut + "[" + out.getMetadata() + "]" + " x" + out.getCount());
+                            idOut + "[" + out.getMetadata() + "]" + " x" + out.stackSize);
         }
         dump(filePath, t, "Total: " + count);
     }
@@ -102,7 +101,7 @@ public class PartyUtils
         {
             ResourceLocation loc = Item.REGISTRY.getNameForObject(itm);
             @Nonnull
-            NonNullList<ItemStack> l = NonNullList.create();
+            List<ItemStack> l = new ArrayList<ItemStack>();
             if (itm.getHasSubtypes())
                 itm.getSubItems(itm, null, l);
             else
