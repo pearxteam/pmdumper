@@ -1,6 +1,5 @@
 package ru.pearx.pmdumper;
 
-import net.minecraft.util.NonNullList;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.ModMetadata;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
@@ -53,6 +52,7 @@ public class PMDumper
         e.registerServerCommand(new PMDCommand());
     }
 
+    @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent e)
     {
         ModMetadata md = e.getModMetadata();
