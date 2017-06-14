@@ -39,7 +39,6 @@ public class DumperEntities implements IDumper
             EntityEntry ent = entr.getValue();
             data.add(Arrays.asList(loc.toString(), ent.getName(), ent.getEntityClass().getName()));
             PMDData.plusCounts(counts, loc.getResourceDomain(), 1);
-            EntityVillager.GET_TRADES_DONT_USE()
         }
         return new PMDData(data, counts);
     }

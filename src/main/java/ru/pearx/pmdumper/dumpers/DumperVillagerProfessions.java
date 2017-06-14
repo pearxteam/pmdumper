@@ -28,7 +28,7 @@ public class DumperVillagerProfessions implements IDumper
     {
         Map<String, Integer> counts = new HashMap<>();
         List<List<String>> lst = new ArrayList<>();
-        lst.add(Arrays.asList("ID", "Skin", "Zombie Skin", "Career Name..."));
+        lst.add(Arrays.asList("ID", "Skin", "Zombie Skin", "Career Names"));
         for(Map.Entry<ResourceLocation, VillagerRegistry.VillagerProfession> entr : ForgeRegistries.VILLAGER_PROFESSIONS.getEntries())
         {
             ResourceLocation loc = entr.getKey();
@@ -41,10 +41,16 @@ public class DumperVillagerProfessions implements IDumper
                 profLst.add(loc.toString());
                 profLst.add(prof.getSkin().toString());
                 profLst.add(prof.getZombieSkin().toString());
+
+                StringBuilder profs = new StringBuilder();
                 for(VillagerRegistry.VillagerCareer car : careers)
                 {
-                    profLst.add(car.getName());
+                    profs.append(car.getName());
+                    profs.append(System.lineSeparator());
                 }
+                if(careers.size() > 0)
+                    profs.delete(profs.length() - System.lineSeparator().length(), profs.length());
+                profLst.add(profs.toString());
 
                 lst.add(profLst);
                 PMDData.plusCounts(counts, loc.getResourceDomain(), 1);

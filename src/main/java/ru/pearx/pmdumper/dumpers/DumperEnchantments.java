@@ -28,7 +28,7 @@ public class DumperEnchantments implements IDumper
     {
         List<List<String>> lst = new ArrayList<>();
         Map<String, Integer> counts = new HashMap<>();
-        lst.add(Arrays.asList("ID", "Name", "Levels", "Rarity", "Is Curse?", "Type", "Allowed on books?", "Is Treasure?", "Level (Min Enchantability - Max Enchantability)..."));
+        lst.add(Arrays.asList("ID", "Name", "Levels", "Rarity", "Is Curse", "Type", "Allowed on books", "Is Treasure", "Level (Min Enchantability - Max Enchantability)..."));
         for(Map.Entry<ResourceLocation, Enchantment> entr : ForgeRegistries.ENCHANTMENTS.getEntries())
         {
             ResourceLocation loc = entr.getKey();
