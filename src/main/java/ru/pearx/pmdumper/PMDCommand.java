@@ -57,6 +57,7 @@ public class PMDCommand extends CommandBase
     {
         if(args.length < 1)
             throw new WrongUsageException(getUsage(sender));
+        boolean found = false;
         for(IDumper dump : PMDumper.INSTANCE.dumps)
         {
             if(dump.getName().equals(args[0]) || "all".equals(args[0]))
@@ -95,9 +96,9 @@ public class PMDCommand extends CommandBase
                         List<Map.Entry<String, Integer>> entrLst = new ArrayList<>(data.counts.entrySet());
                         entrLst.sort((e1, e2) -> {
                             if(e1.getValue() < e2.getValue())
-                                return -1;
-                            if(e1.getValue() > e2.getValue())
                                 return 1;
+                            if(e1.getValue() > e2.getValue())
+                                return -1;
                             return 0;
                         });
                         for (Map.Entry<String, Integer> entr : entrLst)
@@ -111,9 +112,10 @@ public class PMDCommand extends CommandBase
                     }
                 }
                 notifyCommandListener(sender, this, "command.pmdumper.success");
-                return;
+                found = true;
             }
         }
-        throw new CommandException("command.pmdumper.notFound");
+        if(!found)
+            throw new CommandException("command.pmdumper.notFound");
     }
 }

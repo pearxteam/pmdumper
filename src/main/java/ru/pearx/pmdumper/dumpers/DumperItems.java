@@ -41,8 +41,9 @@ public class DumperItems implements IDumper
             for(ItemStack stack : stacks)
             {
                 data.add(Arrays.asList(loc.toString(), Integer.toString(stack.getMetadata()), stack.getDisplayName(), Boolean.toString(stack.getItem() instanceof ItemBlock), stack.getItem().getClass().getName(), stack.hasTagCompound() ? stack.getTagCompound().toString() : "no"));
+                PMDData.plusCounts(counts, loc.getResourceDomain() + " (ItemStack)", 1);
             }
-            PMDData.plusCounts(counts, loc.getResourceDomain(), 1);
+            PMDData.plusCounts(counts, loc.getResourceDomain() + " (Item)", 1);
         }
 
         return new PMDData(data, counts);
