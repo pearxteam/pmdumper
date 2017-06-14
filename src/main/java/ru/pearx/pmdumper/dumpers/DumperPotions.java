@@ -1,5 +1,6 @@
 package ru.pearx.pmdumper.dumpers;
 
+import net.minecraft.client.resources.I18n;
 import net.minecraft.item.ItemStack;
 import net.minecraft.potion.Potion;
 import net.minecraft.util.ResourceLocation;
@@ -42,7 +43,7 @@ public class DumperPotions implements IDumper
             }
             if(p.getCurativeItems().size() > 0)
                 curative.delete(curative.length() - System.lineSeparator().length(), curative.length());
-            lst.add(Arrays.asList(loc.toString(), p.getName(), p.getClass().getName(), Boolean.toString(p.isBadEffect()), Boolean.toString(p.isInstant()), Boolean.toString(p.isBeneficial()), curative.toString()));
+            lst.add(Arrays.asList(loc.toString(), I18n.format(p.getName()), p.getClass().getName(), Boolean.toString(p.isBadEffect()), Boolean.toString(p.isInstant()), Boolean.toString(p.isBeneficial()), curative.toString()));
             PMDData.plusCounts(counts, loc.getResourceDomain(), 1);
         }
 
