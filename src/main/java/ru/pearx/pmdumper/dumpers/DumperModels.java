@@ -28,7 +28,7 @@ public class DumperModels implements IDumper
     {
         Map<String, Integer> counts = new HashMap<>();
         List<List<String>> lst = new ArrayList<>();
-        lst.add(Arrays.asList("Variant", "Class"));
+        lst.add(Arrays.asList("Variant", "Class Name"));
         for(ModelResourceLocation loc : Minecraft.getMinecraft().modelManager.modelRegistry.getKeys())
         {
             IBakedModel mdl = Minecraft.getMinecraft().modelManager.getModel(loc);

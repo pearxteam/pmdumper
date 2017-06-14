@@ -46,6 +46,7 @@ public class PMDumper
         dumps.add(new DumperLootTables());
         dumps.add(new DumperVillagerProfessions());
         dumps.add(new DumperBiomes());
+        dumps.add(new DumperPotions());
         e.registerServerCommand(new PMDCommand());
     }
 
