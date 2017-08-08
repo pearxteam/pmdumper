@@ -34,7 +34,7 @@ public class DumperAdvancements implements IDumper
         List<Advancement> advs = new ArrayList<>();
         for(WorldServer wrld : DimensionManager.getWorlds())
         {
-            for(Advancement adv : wrld.getAdvancementManager().getAllAdvancements())
+            for(Advancement adv : wrld.getAdvancementManager().getAdvancements())
             {
                 if(!advs.contains(adv))
                     advs.add(adv);
@@ -56,7 +56,7 @@ public class DumperAdvancements implements IDumper
                 children.delete(children.length() - System.lineSeparator().length(), children.length());
             data.add(Arrays.asList(adv.getId().toString(),
                     adv.getDisplayText().getFormattedText(),
-                    adv.getDisplayInfo() == null ? "no" : displayInfoToString(adv.getDisplayInfo()),
+                    adv.getDisplay() == null ? "no" : displayInfoToString(adv.getDisplay()),
                     adv.getParent() == null ? "no" : adv.getParent().getId().toString(),
                     children.toString(),
                     adv.getRewards().toString()

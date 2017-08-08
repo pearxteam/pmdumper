@@ -39,7 +39,7 @@ public class DumperEnchantments implements IDumper
             row.add(ench.getClass().getName());
             row.add(ench.getMinLevel() + " - " + ench.getMaxLevel());
             row.add(ench.getRarity().toString());
-            row.add(Boolean.toString(ench.func_190936_d()));
+            row.add(Boolean.toString(ench.isCurse()));
             row.add(ench.type == null ? "null" : ench.type.toString());
             row.add(Boolean.toString(ench.isAllowedOnBooks()));
             row.add(Boolean.toString(ench.isTreasureEnchantment()));

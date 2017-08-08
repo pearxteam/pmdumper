@@ -6,6 +6,7 @@ import net.minecraftforge.fml.common.registry.VillagerRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.commons.lang3.reflect.FieldUtils;
+import ru.pearx.pmdumper.PMDumper;
 import ru.pearx.pmdumper.dumpers.base.IDumper;
 import ru.pearx.pmdumper.dumpers.base.PMDData;
 
@@ -56,7 +57,7 @@ public class DumperVillagerProfessions implements IDumper
                 PMDData.plusCounts(counts, loc.getResourceDomain(), 1);
             } catch (IllegalAccessException e)
             {
-                e.printStackTrace();
+                PMDumper.INSTANCE.log.error(e);
             }
         }
         return new PMDData(lst, counts);

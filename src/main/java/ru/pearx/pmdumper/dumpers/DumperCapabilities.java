@@ -5,6 +5,7 @@ import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import org.apache.commons.lang3.reflect.FieldUtils;
+import ru.pearx.pmdumper.PMDumper;
 import ru.pearx.pmdumper.dumpers.base.IDumper;
 import ru.pearx.pmdumper.dumpers.base.PMDData;
 
@@ -37,7 +38,7 @@ public class DumperCapabilities implements IDumper
             }
         } catch (IllegalAccessException e)
         {
-            e.printStackTrace();
+            PMDumper.INSTANCE.log.error(e);
         }
         return new PMDData(lst, null);
     }

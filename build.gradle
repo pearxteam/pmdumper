@@ -24,6 +24,7 @@ minecraft {
 
     replace("@VERSION@", this.version)
     replace("@MCVERSION@", mc_version)
+    replace("acceptedMinecraftVersions = \"\"", "acceptedMinecraftVersions = \"" + accepted_mc_versions + "\"")
     replaceIn("PMDumper.java")
 }
 

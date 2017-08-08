@@ -36,7 +36,7 @@ public class DumperItems implements IDumper
         {
             ResourceLocation loc = entr.getKey();
             Item itm = entr.getValue();
-            NonNullList<ItemStack> stacks = NonNullList.func_191196_a();
+            NonNullList<ItemStack> stacks = NonNullList.create();
             itm.getSubItems(itm.getCreativeTab() == null ? CreativeTabs.MISC : itm.getCreativeTab() , stacks);
             for(ItemStack stack : stacks)
             {
