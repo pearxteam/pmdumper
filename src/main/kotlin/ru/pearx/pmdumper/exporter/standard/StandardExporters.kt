@@ -2,6 +2,7 @@ package ru.pearx.pmdumper.exporter.standard
 
 import net.minecraft.util.ResourceLocation
 import ru.pearx.pmdumper.ID
+import ru.pearx.pmdumper.exporter.ExporterOutput
 import ru.pearx.pmdumper.exporter.fileExporter
 import java.io.File
 import java.io.PrintWriter
@@ -29,7 +30,8 @@ private fun PrintWriter.appendRow(row: List<String>) {
 val ExporterCsv = fileExporter {
     registryName = ResourceLocation(ID, "csv")
     exporter = { header, dumperIterator, amounts, directory, baseFilename ->
-        File(directory, "$baseFilename.csv").printWriter().use { writer ->
+        val table = File(directory, "$baseFilename.csv")
+        table.printWriter().use { writer ->
             with(writer) {
                 appendRow(header)
                 for (row in dumperIterator) {
@@ -37,5 +39,6 @@ val ExporterCsv = fileExporter {
                 }
             }
         }
+        listOf(ExporterOutput("exporterOutput.csv.name", table))
     }
 }

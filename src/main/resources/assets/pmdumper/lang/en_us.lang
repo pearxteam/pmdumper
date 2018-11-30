@@ -1,1 +1,4 @@
 commands.pmdumper.usage=/pmdumper <dumper> <%s>. Available dumpers: %s.
+commands.pmdumper.success=Successfully created the dump! Outputs:
+
+exporterOutput.csv.name=CSV Table

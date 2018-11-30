@@ -5,6 +5,11 @@ import net.minecraft.command.ICommandSender
 import net.minecraft.command.WrongUsageException
 import net.minecraft.server.MinecraftServer
 import net.minecraft.util.math.BlockPos
+import net.minecraft.util.text.Style
+import net.minecraft.util.text.TextComponentString
+import net.minecraft.util.text.TextComponentTranslation
+import net.minecraft.util.text.TextFormatting
+import net.minecraft.util.text.event.ClickEvent
 import ru.pearx.pmdumper.dumper.getDumperNames
 import ru.pearx.pmdumper.dumper.lookupDumperRegistry
 import ru.pearx.pmdumper.exporter.getExporterNames
@@ -29,7 +34,19 @@ class PMDumperCommand : CommandBase() {
         if(exporters.size != 1)
             throw createWrongUsageException(sender)
 
-        exporters[0].export(dumpers[0])
+        val outputs = exporters[0].export(dumpers[0])
+        sender.sendMessage(TextComponentTranslation("commands.pmdumper.success").apply {
+            var start = true
+            for(output in outputs) {
+                if(start)
+                    start = false
+                else
+                    appendSibling(TextComponentString(", "))
+                val style = Style().setClickEvent(ClickEvent(ClickEvent.Action.OPEN_FILE, output.path.toString())).setUnderlined(true).setColor(TextFormatting.BLUE)
+                appendSibling(TextComponentTranslation(output.translationKey).setStyle(style))
+            }
+            appendSibling(TextComponentString("."))
+        })
     }
 
     override fun getUsage(sender: ICommandSender) = "commands.pmdumper.usage"

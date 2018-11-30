@@ -11,24 +11,26 @@ import java.io.File
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
+data class ExporterOutput(val translationKey: String, val path: File)
+
 interface IExporter : IForgeRegistryEntry<IExporter> {
     override fun getRegistryType(): Class<IExporter> = IExporter::class.java
 
-    fun export(dumper: IDumper)
+    fun export(dumper: IDumper): List<ExporterOutput>
 }
 
 
 interface IFileExporter : IExporter {
-    override fun export(dumper: IDumper) {
+    override fun export(dumper: IDumper): List<ExporterOutput> {
         val amounts = DumperAmounts()
-        exportToFile(dumper.header, dumper.createIterator(amounts), amounts, File(Minecraft.getMinecraft().gameDir, "pmdumper"), "${getRegistryElementName(DumperRegistry, dumper.registryName!!)}_${LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss"))}")
+        return exportToFile(dumper.header, dumper.createIterator(amounts), amounts, File(Minecraft.getMinecraft().gameDir, "pmdumper"), "${getRegistryElementName(DumperRegistry, dumper.registryName!!)}_${LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss"))}")
     }
 
-    fun exportToFile(header: List<String>, dumperIterator: Iterator<List<String>>, amounts: DumperAmounts, directory: File, baseFilename: String)
+    fun exportToFile(header: List<String>, dumperIterator: Iterator<List<String>>, amounts: DumperAmounts, directory: File, baseFilename: String): List<ExporterOutput>
 }
 
 class FileExporter : IFileExporter {
-    lateinit var exporter: (header: List<String>, dumperIterator: Iterator<List<String>>, amounts: DumperAmounts, directory: File, baseFilename: String) -> Unit
+    lateinit var exporter: (header: List<String>, dumperIterator: Iterator<List<String>>, amounts: DumperAmounts, directory: File, baseFilename: String) -> List<ExporterOutput>
 
     private var registryName: ResourceLocation? = null
 
@@ -39,9 +41,9 @@ class FileExporter : IFileExporter {
         return this
     }
 
-    override fun exportToFile(header: List<String>, dumperIterator: Iterator<List<String>>, amounts: DumperAmounts, directory: File, baseFilename: String) {
+    override fun exportToFile(header: List<String>, dumperIterator: Iterator<List<String>>, amounts: DumperAmounts, directory: File, baseFilename: String): List<ExporterOutput> {
         directory.mkdirs()
-        exporter(header, dumperIterator, amounts, directory, baseFilename)
+        return exporter(header, dumperIterator, amounts, directory, baseFilename)
     }
 }
 
