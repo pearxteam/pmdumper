@@ -23,14 +23,14 @@ interface IExporter : IForgeRegistryEntry<IExporter> {
 interface IFileExporter : IExporter {
     override fun export(dumper: IDumper): List<ExporterOutput> {
         val amounts = DumperAmounts()
-        return exportToFile(dumper.header, dumper.createIterator(amounts), amounts, File(Minecraft.getMinecraft().gameDir, "pmdumper"), "${getRegistryElementName(DumperRegistry, dumper.registryName!!)}_${LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss"))}")
+        return exportToFile(dumper.header, dumper.dump(amounts).sortedBy { it[dumper.columnToSortBy] }, amounts.sort(), File(Minecraft.getMinecraft().gameDir, "pmdumper"), "${getRegistryElementName(DumperRegistry, dumper.registryName!!)}_${LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss"))}")
     }
 
-    fun exportToFile(header: List<String>, dumperIterator: Iterator<List<String>>, amounts: DumperAmounts, directory: File, baseFilename: String): List<ExporterOutput>
+    fun exportToFile(header: List<String>, table: List<List<String>>, amounts: List<Pair<String, Int>>, directory: File, baseFilename: String): List<ExporterOutput>
 }
 
 class FileExporter : IFileExporter {
-    lateinit var exporter: (header: List<String>, dumperIterator: Iterator<List<String>>, amounts: DumperAmounts, directory: File, baseFilename: String) -> List<ExporterOutput>
+    lateinit var exporter: (header: List<String>, table: List<List<String>>, amounts: List<Pair<String, Int>>, directory: File, baseFilename: String) -> List<ExporterOutput>
 
     private var registryName: ResourceLocation? = null
 
@@ -41,9 +41,9 @@ class FileExporter : IFileExporter {
         return this
     }
 
-    override fun exportToFile(header: List<String>, dumperIterator: Iterator<List<String>>, amounts: DumperAmounts, directory: File, baseFilename: String): List<ExporterOutput> {
+    override fun exportToFile(header: List<String>, table: List<List<String>>, amounts: List<Pair<String, Int>>, directory: File, baseFilename: String): List<ExporterOutput> {
         directory.mkdirs()
-        return exporter(header, dumperIterator, amounts, directory, baseFilename)
+        return exporter(header, table, amounts, directory, baseFilename)
     }
 }
 

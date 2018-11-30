@@ -8,6 +8,7 @@ import ru.pearx.pmdumper.dumper.dumper
 val DumperEnchantments = dumper {
     registryName = ResourceLocation(ID, "enchantments")
     header = listOf("ID", "Name", "Class Name", "Levels", "Rarity", "Is Curse", "Type", "Allowed on books", "Is Treasure", "Localized Name [Min Enchantability - Max Enchantability]...")
+    columnToSortBy = 0
     iteratorBuilder = { amounts ->
         iterator {
             for (ench in ForgeRegistries.ENCHANTMENTS) {

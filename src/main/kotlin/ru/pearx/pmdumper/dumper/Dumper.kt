@@ -9,11 +9,14 @@ class DumperAmounts : MutableMap<String, Int> by hashMapOf() {
     }
 
     operator fun plusAssign(value: ResourceLocation?) = plusAssign(value?.namespace ?: "null")
+
+    fun sort(): List<Pair<String, Int>> = toList().sortedByDescending { (k, v) -> v }
 }
 
 interface IDumper : IForgeRegistryEntry<IDumper> {
     val header: List<String>
-    fun createIterator(amounts: DumperAmounts): Iterator<List<String>>
+    val columnToSortBy: Int
+    fun dump(amounts: DumperAmounts): Iterable<List<String>>
 
     override fun getRegistryType(): Class<IDumper> = IDumper::class.java
 }
@@ -22,6 +25,8 @@ class Dumper : IDumper {
     lateinit var iteratorBuilder: (amounts: DumperAmounts) -> Iterator<List<String>>
 
     override lateinit var header: List<String>
+
+    override var columnToSortBy = 0
 
     private var registryName: ResourceLocation? = null
 
@@ -32,7 +37,7 @@ class Dumper : IDumper {
         return this
     }
 
-    override fun createIterator(amounts: DumperAmounts) = iteratorBuilder(amounts)
+    override fun dump(amounts: DumperAmounts): Iterable<List<String>> = Iterable { iteratorBuilder(amounts) }
 }
 
 inline fun dumper(init: Dumper.() -> Unit): IDumper {

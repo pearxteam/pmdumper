@@ -10,18 +10,18 @@ import java.io.PrintWriter
 private fun PrintWriter.appendRow(row: List<String>) {
     var start = true
     for (element in row) {
-        if(start)
+        if (start)
             start = false
         else
             append(',')
 
         val shouldBeQuoted = element.any { it == ',' || it == '"' }
-        if(shouldBeQuoted)
+        if (shouldBeQuoted)
             append('"')
 
         print(element.replace("\"", "\"\""))
 
-        if(shouldBeQuoted)
+        if (shouldBeQuoted)
             append('"')
     }
     appendln()
@@ -29,16 +29,24 @@ private fun PrintWriter.appendRow(row: List<String>) {
 
 val ExporterCsv = fileExporter {
     registryName = ResourceLocation(ID, "csv")
-    exporter = { header, dumperIterator, amounts, directory, baseFilename ->
-        val table = File(directory, "$baseFilename.csv")
-        table.printWriter().use { writer ->
+    exporter = { header, table, amounts, directory, baseFilename ->
+        val tableFile = File(directory, "$baseFilename.csv")
+        val amountsFile = File(directory, "${baseFilename}_amounts.csv")
+        tableFile.printWriter().use { writer ->
             with(writer) {
                 appendRow(header)
-                for (row in dumperIterator) {
+                for (row in table) {
                     appendRow(row)
                 }
             }
         }
-        listOf(ExporterOutput("exporterOutput.csv.name", table))
+        amountsFile.printWriter().use { writer ->
+            with(writer) {
+                for(entry in amounts) {
+                    appendRow(listOf(entry.first, entry.second.toString()))
+                }
+            }
+        }
+        listOf(ExporterOutput("exporterOutput.csv.name", tableFile), ExporterOutput("exporterOutput.amounts.name", amountsFile))
     }
 }
