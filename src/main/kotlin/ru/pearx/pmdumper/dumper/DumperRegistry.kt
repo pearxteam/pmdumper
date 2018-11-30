@@ -8,6 +8,7 @@ import net.minecraftforge.registries.IForgeRegistry
 import net.minecraftforge.registries.RegistryBuilder
 import ru.pearx.pmdumper.ID
 import ru.pearx.pmdumper.dumper.standard.DumperEnchantments
+import ru.pearx.pmdumper.dumper.standard.DumperSounds
 import ru.pearx.pmdumper.getRegistryElementNames
 import ru.pearx.pmdumper.lookupRegistryElements
 
@@ -30,6 +31,7 @@ object Events {
     fun onRegisterDumpers(event: RegistryEvent.Register<IDumper>) {
         with(event.registry) {
             register(DumperEnchantments)
+            register(DumperSounds)
         }
     }
 }

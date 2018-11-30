@@ -34,3 +34,23 @@ val DumperEnchantments = dumper {
         }
     }
 }
+
+val DumperSounds = dumper {
+    registryName = ResourceLocation(ID, "sounds")
+    header = listOf("ID", "Name")
+    columnToSortBy = 0
+    iteratorBuilder = { amounts ->
+        iterator {
+            for (sound in ForgeRegistries.SOUND_EVENTS) {
+                with(ArrayList<String>(header.size)) {
+                    with(sound) {
+                        amounts += registryName
+                        add(registryName.toString())
+                        add(soundName.toString())
+                    }
+                    yield(this)
+                }
+            }
+        }
+    }
+}
