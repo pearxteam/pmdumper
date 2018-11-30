@@ -15,7 +15,7 @@ private fun PrintWriter.appendRow(row: List<String>) {
         else
             append(',')
 
-        val shouldBeQuoted = element.any { it == ',' || it == '"' }
+        val shouldBeQuoted = element.any { it == ',' || it == '"' || it == '\r' || it == '\n'}
         if (shouldBeQuoted)
             append('"')
 

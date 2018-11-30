@@ -45,3 +45,5 @@ internal fun <T : IForgeRegistryEntry<T>> getRegistryElementName(registry: IForg
     else
         name.path
 }
+
+fun Boolean.toPlusMinusString() = if(this) "+" else "-"
