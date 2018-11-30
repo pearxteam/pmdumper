@@ -4,30 +4,36 @@ import net.minecraft.util.ResourceLocation
 import ru.pearx.pmdumper.ID
 import ru.pearx.pmdumper.exporter.fileExporter
 import java.io.File
+import java.io.PrintWriter
+
+private fun PrintWriter.appendRow(row: List<String>) {
+    var start = true
+    for (element in row) {
+        if(start)
+            start = false
+        else
+            append(',')
+
+        val shouldBeQuoted = element.any { it == ',' || it == '"' }
+        if(shouldBeQuoted)
+            append('"')
+
+        print(element.replace("\"", "\"\""))
+
+        if(shouldBeQuoted)
+            append('"')
+    }
+    appendln()
+}
 
 val ExporterCsv = fileExporter {
     registryName = ResourceLocation(ID, "csv")
-    exporter = { dumperIterator, amounts, directory, baseFilename ->
+    exporter = { header, dumperIterator, amounts, directory, baseFilename ->
         File(directory, "$baseFilename.csv").printWriter().use { writer ->
             with(writer) {
-                for (list in dumperIterator) {
-                    var start = true
-                    for (element in list) {
-                        if(start)
-                            start = false
-                        else
-                            append(',')
-
-                        val shouldBeQuoted = element.any { it == ',' || it == '"' }
-                        if(shouldBeQuoted)
-                            append('"')
-
-                        print(element.replace("\"", "\"\""))
-
-                        if(shouldBeQuoted)
-                            append('"')
-                    }
-                    appendln()
+                appendRow(header)
+                for (row in dumperIterator) {
+                    appendRow(row)
                 }
             }
         }
