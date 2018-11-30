@@ -1,5 +1,6 @@
 import net.minecraftforge.gradle.common.BaseExtension
 import net.minecraftforge.gradle.user.UserBaseExtension
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     id("org.jetbrains.kotlin.jvm")
@@ -11,6 +12,7 @@ val modVersion: String by project
 val modGroup: String by project
 val modDescription: String by project
 val modBuildNumber: String by project
+val jdkVersion: String by project
 val forgeVersion: String by project
 val mcpMappings: String by project
 val mcVersion: String by project
@@ -25,9 +27,18 @@ description = modDescription
 configure<BasePluginConvention> {
     archivesBaseName = "$modId-$mcVersion"
 }
+
 configure<JavaPluginConvention> {
     sourceCompatibility = JavaVersion.VERSION_1_8
 }
+repositories {
+    maven { url = uri("https://maven.shadowfacts.net/") }
+}
+
+dependencies {
+    "compile"("net.shadowfacts:Forgelin:$forgelinVersion")
+}
+
 configure<UserBaseExtension> {
     version = "$mcVersion-$forgeVersion"
     runDir = "run"
@@ -39,10 +50,9 @@ configure<UserBaseExtension> {
     replaceIn("Reference.kt")
 }
 
-repositories {
-    maven { url = uri("https://maven.shadowfacts.net/") }
-}
-
-dependencies {
-    "compile"("net.shadowfacts:Forgelin:$forgelinVersion")
+tasks {
+    withType<KotlinCompile> {
+        kotlinOptions.jvmTarget = "1.$jdkVersion"
+        kotlinOptions.freeCompilerArgs = listOf("-Xno-param-assertions")
+    }
 }

@@ -1,15 +1,14 @@
 package ru.pearx.pmdumper
 
 import net.minecraft.command.CommandBase
-import net.minecraft.command.CommandException
 import net.minecraft.command.ICommandSender
 import net.minecraft.command.WrongUsageException
 import net.minecraft.server.MinecraftServer
 import net.minecraft.util.math.BlockPos
-import ru.pearx.pmdumper.dumper.DumperRegistry
-import ru.pearx.pmdumper.dumper.IDumper
 import ru.pearx.pmdumper.dumper.getDumperNames
 import ru.pearx.pmdumper.dumper.lookupDumperRegistry
+import ru.pearx.pmdumper.exporter.getExporterNames
+import ru.pearx.pmdumper.exporter.lookupExporterRegistry
 
 class PMDumperCommand : CommandBase() {
     override fun getName() = "pmdumper"
@@ -19,12 +18,18 @@ class PMDumperCommand : CommandBase() {
             throw createWrongUsageException(sender)
         }
 
-        val name = args[0]
+        val dumper = args[0]
         val exporter = args[1]
 
-        val dumpers = lookupDumperRegistry(name)
+        val dumpers = lookupDumperRegistry(dumper)
         if(dumpers.size != 1)
             throw createWrongUsageException(sender)
+
+        val exporters = lookupExporterRegistry(exporter)
+        if(exporters.size != 1)
+            throw createWrongUsageException(sender)
+
+        exporters[0].export(dumpers[0])
     }
 
     override fun getUsage(sender: ICommandSender) = "commands.pmdumper.usage"
@@ -32,10 +37,10 @@ class PMDumperCommand : CommandBase() {
     override fun getTabCompletions(server: MinecraftServer, sender: ICommandSender, args: Array<String>, targetPos: BlockPos?): List<String> {
         return when(args.size) {
             1 -> getDumperNames()
-            2 -> listOf("") //todo exporters
+            2 -> getExporterNames()
             else -> listOf()
         }
     }
 
-    private fun createWrongUsageException(sender: ICommandSender) = WrongUsageException(getUsage(sender), "", getDumperNames().joinToString(", "))
+    private fun createWrongUsageException(sender: ICommandSender) = WrongUsageException(getUsage(sender), getExporterNames().joinToString(separator = "|"), getDumperNames().joinToString(", "))
 }

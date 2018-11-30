@@ -1,5 +1,6 @@
 package ru.pearx.pmdumper
 
+import net.minecraft.util.ResourceLocation
 import net.minecraftforge.registries.IForgeRegistry
 import net.minecraftforge.registries.IForgeRegistryEntry
 
@@ -22,23 +23,25 @@ internal fun <T : IForgeRegistryEntry<T>> getRegistryElementNames(registry: IFor
     return ArrayList<String>(registry.entries.size).apply {
         for (element in registry) {
 
-            if (element.registryName != null) {
-
-                val found: Boolean = run {
-                    for (anotherElement in registry) {
-                        if (anotherElement != element && anotherElement.registryName != null &&
-                            anotherElement.registryName!!.path == element.registryName!!.path) {
-                            return@run true
-                        }
-                    }
-                    return@run false
-                }
-
-                if (found)
-                    add(element.registryName.toString())
-                else
-                    add(element.registryName!!.path)
-            }
+            if (element.registryName != null)
+                add(getRegistryElementName(registry, element.registryName!!))
         }
     }
+}
+
+internal fun <T : IForgeRegistryEntry<T>> getRegistryElementName(registry: IForgeRegistry<T>, name: ResourceLocation): String {
+    val found: Boolean = run {
+        for (anotherElement in registry) {
+            if (anotherElement.registryName != name &&
+                anotherElement.registryName!!.path == name.path) {
+                return@run true
+            }
+        }
+        return@run false
+    }
+
+    return if (found)
+        name.toString()
+    else
+        name.path
 }

@@ -3,7 +3,6 @@ package ru.pearx.pmdumper.dumper
 import net.minecraft.util.ResourceLocation
 import net.minecraftforge.registries.IForgeRegistryEntry
 
-typealias DumperTable = MutableList<MutableList<String>>
 class DumperAmounts : MutableMap<String, Int> by hashMapOf() {
     operator fun plusAssign(value: String) {
         this[value] = (this[value] ?: 0) + 1
@@ -11,17 +10,16 @@ class DumperAmounts : MutableMap<String, Int> by hashMapOf() {
 
     operator fun plusAssign(value: ResourceLocation?) = plusAssign(value?.namespace ?: "null")
 }
-typealias Filler = (table: DumperTable, amounts: DumperAmounts) -> Unit
 
 interface IDumper : IForgeRegistryEntry<IDumper> {
     val header: List<String>
-    fun fillData(table: DumperTable, amounts: DumperAmounts)
+    fun createIterator(amounts: DumperAmounts): Iterator<List<String>>
 
     override fun getRegistryType(): Class<IDumper> = IDumper::class.java
 }
 
 class Dumper : IDumper {
-    lateinit var filler: Filler
+    lateinit var iteratorBuilder: (amounts: DumperAmounts) -> Iterator<List<String>>
 
     override lateinit var header: List<String>
 
@@ -34,10 +32,10 @@ class Dumper : IDumper {
         return this
     }
 
-    override fun fillData(table: DumperTable, amounts: DumperAmounts) = filler(table, amounts)
+    override fun createIterator(amounts: DumperAmounts) = iteratorBuilder(amounts)
 }
 
-inline fun buildDumper(init: Dumper.() -> Unit): IDumper {
+inline fun dumper(init: Dumper.() -> Unit): IDumper {
     val dumper = Dumper()
     dumper.init()
     return dumper
