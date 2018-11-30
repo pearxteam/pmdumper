@@ -19,7 +19,7 @@ class PMDumperCommand : CommandBase() {
     override fun getName() = "pmdumper"
 
     override fun execute(server: MinecraftServer, sender: ICommandSender, args: Array<String>) {
-        if(args.size < 2) {
+        if (args.size < 2) {
             throw createWrongUsageException(sender)
         }
 
@@ -27,32 +27,34 @@ class PMDumperCommand : CommandBase() {
         val exporter = args[1]
 
         val dumpers = lookupDumperRegistry(dumper)
-        if(dumpers.size != 1)
+        if (dumpers.size != 1)
             throw createWrongUsageException(sender)
 
         val exporters = lookupExporterRegistry(exporter)
-        if(exporters.size != 1)
+        if (exporters.size != 1)
             throw createWrongUsageException(sender)
 
         val outputs = exporters[0].export(dumpers[0])
         sender.sendMessage(TextComponentTranslation("commands.pmdumper.success").apply {
             var start = true
-            for(output in outputs) {
-                if(start)
+            for (output in outputs) {
+                if (start) {
                     start = false
+                    appendText(" ")
+                }
                 else
-                    appendSibling(TextComponentString(", "))
+                    appendText(", ")
                 val style = Style().setClickEvent(ClickEvent(ClickEvent.Action.OPEN_FILE, output.path.toString())).setUnderlined(true).setColor(TextFormatting.BLUE)
                 appendSibling(TextComponentTranslation(output.translationKey).setStyle(style))
             }
-            appendSibling(TextComponentString("."))
+            appendText(".")
         })
     }
 
     override fun getUsage(sender: ICommandSender) = "commands.pmdumper.usage"
 
     override fun getTabCompletions(server: MinecraftServer, sender: ICommandSender, args: Array<String>, targetPos: BlockPos?): List<String> {
-        return when(args.size) {
+        return when (args.size) {
             1 -> getDumperNames()
             2 -> getExporterNames()
             else -> listOf()
