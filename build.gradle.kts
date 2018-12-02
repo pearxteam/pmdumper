@@ -33,9 +33,11 @@ configure<JavaPluginConvention> {
 }
 repositories {
     maven { url = uri("https://maven.shadowfacts.net/") }
+    maven { url = uri("https://minecraft.curseforge.com/api/maven") }
 }
 
 dependencies {
+    "compile"("projecte:ProjectE:1.12:PE1.3.2h")
     "compile"("net.shadowfacts:Forgelin:$forgelinVersion")
 }
 
