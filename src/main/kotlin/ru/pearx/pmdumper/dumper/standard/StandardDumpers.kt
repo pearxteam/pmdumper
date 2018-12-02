@@ -123,8 +123,7 @@ val DumperPotions = dumper {
     registryName = ResourceLocation(ID, "potions")
     header = listOf("ID", "Display Name", "Name", "Class Name", "Is Bad Effect", "Is Instant", "Is Beneficial", "Status Icon Index", "Liquid Color", "Curative Items", "Attribute Modifiers")
     iteratorBuilder = { amounts ->
-        println(ItemStack(Items.FISH, 2, 10).apply { tagCompound = NBTTagCompound().apply { setString("test", "123")} }.toFullString())
-        iterator {
+         iterator {
             for(potion in ForgeRegistries.POTIONS) {
                 with(ArrayList<String>(header.size)) {
                     with(potion) {
