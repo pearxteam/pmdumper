@@ -4,10 +4,13 @@ import moze_intel.projecte.utils.EMCHelper
 import net.minecraft.client.Minecraft
 import net.minecraft.client.util.ITooltipFlag
 import net.minecraft.creativetab.CreativeTabs
+import net.minecraft.init.Items
 import net.minecraft.item.ItemBlock
 import net.minecraft.item.ItemStack
+import net.minecraft.nbt.NBTTagCompound
 import net.minecraft.util.NonNullList
 import net.minecraft.util.ResourceLocation
+import net.minecraft.util.text.translation.I18n
 import net.minecraftforge.fml.common.FMLCommonHandler
 import net.minecraftforge.fml.common.Loader
 import net.minecraftforge.fml.common.registry.ForgeRegistries
@@ -16,6 +19,7 @@ import net.minecraftforge.oredict.OreDictionary
 import ru.pearx.pmdumper.ID
 import ru.pearx.pmdumper.PROJECTE_ID
 import ru.pearx.pmdumper.dumper.dumper
+import ru.pearx.pmdumper.toFullString
 import ru.pearx.pmdumper.toPlusMinusString
 
 val DumperEnchantments = dumper {
@@ -109,6 +113,55 @@ val DumperItemStacks = dumper {
                         }
                         yield(this)
                     }
+                }
+            }
+        }
+    }
+}
+
+val DumperPotions = dumper {
+    registryName = ResourceLocation(ID, "potions")
+    header = listOf("ID", "Display Name", "Name", "Class Name", "Is Bad Effect", "Is Instant", "Is Beneficial", "Status Icon Index", "Liquid Color", "Curative Items", "Attribute Modifiers")
+    iteratorBuilder = { amounts ->
+        println(ItemStack(Items.FISH, 2, 10).apply { tagCompound = NBTTagCompound().apply { setString("test", "123")} }.toFullString())
+        iterator {
+            for(potion in ForgeRegistries.POTIONS) {
+                with(ArrayList<String>(header.size)) {
+                    with(potion) {
+                        amounts += registryName
+                        add(registryName.toString())
+                        add(I18n.translateToLocalFormatted(name))
+                        add(name)
+                        add(this::class.java.name)
+                        add(isBadEffect.toPlusMinusString())
+                        add(isInstant.toPlusMinusString())
+                        add(isBeneficial.toPlusMinusString())
+                        add(statusIconIndex.toString())
+                        add("#${Integer.toHexString(liquidColor).toUpperCase().padStart(6, '0')}")
+                        add(StringBuilder().apply {
+                            var start = true
+                            for(item in curativeItems) {
+                                if(start)
+                                    start = false
+                                else
+                                    appendln()
+                                append(item.toFullString())
+                            }
+                        }.toString())
+                        add(StringBuilder().apply {
+                            var start = true
+                            for((attribute, modifier) in attributeModifierMap) {
+                                if(start)
+                                    start = true
+                                else
+                                    appendln()
+                                append(attribute.name)
+                                append(": ")
+                                append(modifier)
+                            }
+                        }.toString())
+                    }
+                    yield(this)
                 }
             }
         }

@@ -9,6 +9,7 @@ import net.minecraftforge.registries.RegistryBuilder
 import ru.pearx.pmdumper.ID
 import ru.pearx.pmdumper.dumper.standard.DumperEnchantments
 import ru.pearx.pmdumper.dumper.standard.DumperItemStacks
+import ru.pearx.pmdumper.dumper.standard.DumperPotions
 import ru.pearx.pmdumper.dumper.standard.DumperSounds
 import ru.pearx.pmdumper.getRegistryElementNames
 import ru.pearx.pmdumper.lookupRegistryElements
@@ -34,6 +35,7 @@ object Events {
             register(DumperEnchantments)
             register(DumperSounds)
             register(DumperItemStacks)
+            register(DumperPotions)
         }
     }
 }

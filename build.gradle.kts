@@ -18,6 +18,9 @@ val mcpMappings: String by project
 val mcVersion: String by project
 val acceptedMcVersions: String by project
 val forgelinVersion: String by project
+val projectEMcVersion: String by project
+val projectEVersion: String by project
+val jeiVersion: String by project
 
 
 version = "$modVersion+$modBuildNumber"
@@ -34,11 +37,13 @@ configure<JavaPluginConvention> {
 repositories {
     maven { url = uri("https://maven.shadowfacts.net/") }
     maven { url = uri("https://minecraft.curseforge.com/api/maven") }
+    maven { url = uri("http://dvs1.progwml6.com/files/maven") }
 }
 
 dependencies {
-    "compile"("projecte:ProjectE:1.12:PE1.3.2h")
+    "compile"("projecte:ProjectE:$projectEMcVersion:$projectEVersion")
     "compile"("net.shadowfacts:Forgelin:$forgelinVersion")
+    "runtime"("mezz.jei:jei_$mcVersion:$jeiVersion")
 }
 
 configure<UserBaseExtension> {
