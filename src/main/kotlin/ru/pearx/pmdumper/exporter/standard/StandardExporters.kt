@@ -7,7 +7,7 @@ import ru.pearx.pmdumper.exporter.fileExporter
 import java.io.File
 import java.io.PrintWriter
 
-private fun PrintWriter.appendRow(row: List<String>) {
+private fun Appendable.appendRow(row: List<String>) {
     var start = true
     for (element in row) {
         if (start)
@@ -19,12 +19,11 @@ private fun PrintWriter.appendRow(row: List<String>) {
         if (shouldBeQuoted)
             append('"')
 
-        print(element.replace("\"", "\"\""))
+        append(element.replace("\"", "\"\""))
 
         if (shouldBeQuoted)
             append('"')
     }
-    appendln()
 }
 
 val ExporterCsv = fileExporter {
@@ -36,13 +35,19 @@ val ExporterCsv = fileExporter {
             with(writer) {
                 appendRow(header)
                 for (row in table) {
+                    appendln()
                     appendRow(row)
                 }
             }
         }
         amountsFile.printWriter().use { writer ->
             with(writer) {
+                var start = true
                 for(entry in amounts) {
+                    if(start)
+                        start = false
+                    else
+                        appendln()
                     appendRow(listOf(entry.first, entry.second.toString()))
                 }
             }
