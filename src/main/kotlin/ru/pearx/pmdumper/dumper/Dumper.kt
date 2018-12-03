@@ -13,6 +13,8 @@ class DumperAmounts : MutableMap<String, Int> by hashMapOf() {
     fun sort(): List<Pair<String, Int>> = toList().sortedByDescending { (k, v) -> v }
 }
 
+typealias DumperIteratorCreator = suspend SequenceScope<List<String>>.(amounts: DumperAmounts) -> Unit
+
 interface IDumper : IForgeRegistryEntry<IDumper> {
     val header: List<String>
     val columnToSortBy: Int
@@ -22,13 +24,12 @@ interface IDumper : IForgeRegistryEntry<IDumper> {
 }
 
 class Dumper : IDumper {
-    lateinit var iteratorBuilder: (amounts: DumperAmounts) -> Iterator<List<String>>
+    private var registryName: ResourceLocation? = null
+    private lateinit var iterator: DumperIteratorCreator
 
     override lateinit var header: List<String>
 
     override var columnToSortBy = 0
-
-    private var registryName: ResourceLocation? = null
 
     override fun getRegistryName(): ResourceLocation? = registryName
 
@@ -37,7 +38,11 @@ class Dumper : IDumper {
         return this
     }
 
-    override fun dump(amounts: DumperAmounts): Iterable<List<String>> = Iterable { iteratorBuilder(amounts) }
+    override fun dump(amounts: DumperAmounts): Iterable<List<String>> = Iterable { iterator<List<String>> { iterator(amounts) } }
+
+    fun iterator(block: DumperIteratorCreator) {
+        iterator = block
+    }
 }
 
 inline fun dumper(init: Dumper.() -> Unit): IDumper {

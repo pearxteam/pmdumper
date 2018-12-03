@@ -29,9 +29,10 @@ interface IFileExporter : IExporter {
     fun exportToFile(header: List<String>, table: List<List<String>>, amounts: List<Pair<String, Int>>, directory: File, baseFilename: String): List<ExporterOutput>
 }
 
-class FileExporter : IFileExporter {
-    lateinit var exporter: (header: List<String>, table: List<List<String>>, amounts: List<Pair<String, Int>>, directory: File, baseFilename: String) -> List<ExporterOutput>
+typealias FileExporterExporter = (header: List<String>, table: List<List<String>>, amounts: List<Pair<String, Int>>, directory: File, baseFilename: String) -> List<ExporterOutput>
 
+class FileExporter : IFileExporter {
+    private lateinit var exporter: FileExporterExporter
     private var registryName: ResourceLocation? = null
 
     override fun getRegistryName(): ResourceLocation? = registryName
@@ -44,6 +45,10 @@ class FileExporter : IFileExporter {
     override fun exportToFile(header: List<String>, table: List<List<String>>, amounts: List<Pair<String, Int>>, directory: File, baseFilename: String): List<ExporterOutput> {
         directory.mkdirs()
         return exporter(header, table, amounts, directory, baseFilename)
+    }
+
+    fun exporter(block: FileExporterExporter) {
+        exporter = block
     }
 }
 

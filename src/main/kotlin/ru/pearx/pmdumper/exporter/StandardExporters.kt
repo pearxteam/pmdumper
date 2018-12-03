@@ -1,11 +1,8 @@
-package ru.pearx.pmdumper.exporter.standard
+package ru.pearx.pmdumper.exporter
 
 import net.minecraft.util.ResourceLocation
 import ru.pearx.pmdumper.ID
-import ru.pearx.pmdumper.exporter.ExporterOutput
-import ru.pearx.pmdumper.exporter.fileExporter
 import java.io.File
-import java.io.PrintWriter
 
 private fun Appendable.appendRow(row: List<String>) {
     var start = true
@@ -28,7 +25,7 @@ private fun Appendable.appendRow(row: List<String>) {
 
 val ExporterCsv = fileExporter {
     registryName = ResourceLocation(ID, "csv")
-    exporter = { header, table, amounts, directory, baseFilename ->
+    exporter { header, table, amounts, directory, baseFilename ->
         val tableFile = File(directory, "$baseFilename.csv")
         val amountsFile = File(directory, "${baseFilename}_amounts.csv")
         tableFile.printWriter().use { writer ->

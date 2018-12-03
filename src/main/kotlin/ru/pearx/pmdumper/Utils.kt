@@ -67,3 +67,5 @@ fun ItemStack.toFullString() = StringBuilder().apply {
         append(tagCompound.toString())
     }
 }.toString()
+
+fun Int.toHexColorString() = "#${Integer.toHexString(this).toUpperCase().padStart(6, '0')}"
