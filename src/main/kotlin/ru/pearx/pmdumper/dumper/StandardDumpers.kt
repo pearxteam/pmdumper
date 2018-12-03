@@ -5,58 +5,66 @@ import net.minecraft.client.Minecraft
 import net.minecraft.client.util.ITooltipFlag
 import net.minecraft.creativetab.CreativeTabs
 import net.minecraft.entity.EnumCreatureType
-import net.minecraft.init.Items
 import net.minecraft.item.ItemBlock
 import net.minecraft.item.ItemStack
 import net.minecraft.util.NonNullList
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.text.translation.I18n
+import net.minecraftforge.common.capabilities.Capability
+import net.minecraftforge.common.capabilities.CapabilityManager
 import net.minecraftforge.fml.common.FMLCommonHandler
 import net.minecraftforge.fml.common.Loader
 import net.minecraftforge.fml.common.registry.ForgeRegistries
+import net.minecraftforge.fml.common.registry.VillagerRegistry
 import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.oredict.OreDictionary
 import ru.pearx.pmdumper.*
-import org.apache.commons.lang3.reflect.FieldUtils
-import net.minecraftforge.fml.common.registry.VillagerRegistry
-
+import java.util.IdentityHashMap
+import kotlin.collections.ArrayList
+import kotlin.collections.List
+import kotlin.collections.component1
+import kotlin.collections.component2
+import kotlin.collections.iterator
+import kotlin.collections.joinToString
+import kotlin.collections.listOf
+import kotlin.collections.mutableListOf
 
 
 val DumperBiomes = dumper {
     registryName = ResourceLocation(ID, "biomes")
     header = mutableListOf("ID", "Name", "Default Temperature", "Base Height", "Height Variation", "Class Name", "Is Snowy", "Can Rain", "Rainfall", "Base Biome", "Filler Block", "Top Block", "Water Color", "Water Color Multiplier", "Creature Spawning Chance").apply {
-        for(type in EnumCreatureType.values()) {
+        for (type in EnumCreatureType.values()) {
             add("${type.toString().toLowerCase().capitalize()} Spawn List: Entity*(Min Group-Max Group):Weight")
-    }
-    iterator { amounts ->
-        for (biome in ForgeRegistries.BIOMES) {
-            with(ArrayList<String>(header.size)) {
-                with(biome) {
-                    amounts += registryName
-                    add(registryName.toString())
-                    add(biomeName)
-                    add(defaultTemperature.toString())
-                    add(baseHeight.toString())
-                    add(heightVariation.toString())
-                    add(this::class.java.name)
-                    add(isSnowyBiome.toPlusMinusString())
-                    add(canRain().toPlusMinusString())
-                    add(rainfall.toString())
-                    add(baseBiomeRegName ?: "")
-                    add(fillerBlock.toString())
-                    add(topBlock.toString())
-                    add(waterColor.toHexColorString())
-                    add(waterColorMultiplier.toString())
-                    add(spawningChance.toString())
-                    for (type in EnumCreatureType.values()) {
-                        add(getSpawnableList(type).joinToString(separator = System.lineSeparator()))
+        }
+        iterator { amounts ->
+            for (biome in ForgeRegistries.BIOMES) {
+                with(ArrayList<String>(header.size)) {
+                    with(biome) {
+                        amounts += registryName
+                        add(registryName.toString())
+                        add(biomeName)
+                        add(defaultTemperature.toString())
+                        add(baseHeight.toString())
+                        add(heightVariation.toString())
+                        add(this::class.java.name)
+                        add(isSnowyBiome.toPlusMinusString())
+                        add(canRain().toPlusMinusString())
+                        add(rainfall.toString())
+                        add(baseBiomeRegName ?: "")
+                        add(fillerBlock.toString())
+                        add(topBlock.toString())
+                        add(waterColor.toHexColorString())
+                        add(waterColorMultiplier.toString())
+                        add(spawningChance.toString())
+                        for (type in EnumCreatureType.values()) {
+                            add(getSpawnableList(type).joinToString(separator = System.lineSeparator()))
+                        }
                     }
+                    yield(this)
                 }
-                yield(this)
             }
         }
     }
-}
 }
 
 val DumperEnchantments = dumper {
@@ -202,17 +210,18 @@ val DumperVillagerProfessions = dumper {
     registryName = ResourceLocation(ID, "villagerprofessions")
     header = listOf("ID", "Skin", "Zombie Skin", "Career Names")
     iterator { amounts ->
-        for(profession in ForgeRegistries.VILLAGER_PROFESSIONS) {
+        for (profession in ForgeRegistries.VILLAGER_PROFESSIONS) {
             with(ArrayList<String>(header.size)) {
                 with(profession) {
                     amounts += registryName
                     add(registryName.toString())
                     add(skin.toString())
                     add(zombieSkin.toString())
-                    add(StringBuilder().apply { // todo: dump trades
+                    add(StringBuilder().apply {
+                        // todo: dump trades
                         var start = true
-                        for(career in profession.readField<List<VillagerRegistry.VillagerCareer>>("careers")) {
-                            if(start)
+                        for (career in profession.readField<List<VillagerRegistry.VillagerCareer>>("careers")) {
+                            if (start)
                                 start = false
                             else
                                 appendln()
@@ -230,7 +239,7 @@ val DumperEntities = dumper {
     registryName = ResourceLocation(ID, "entities")
     header = listOf("ID", "Name", "Class Name", "Primary Egg Color", "Secondary Egg Color")
     iterator { amounts ->
-        for(entity in ForgeRegistries.ENTITIES) {
+        for (entity in ForgeRegistries.ENTITIES) {
             with(ArrayList<String>(header.size)) {
                 with(entity) {
                     amounts += registryName
@@ -251,12 +260,28 @@ val DumperModels = dumper {
     header = listOf("Variant", "Class Name")
     iterator { amounts ->
         val registry = Minecraft.getMinecraft().modelManager.modelRegistry
-        for(key in registry.keys) {
+        for (key in registry.keys) {
             val model = registry.getObject(key)!!
             amounts += key
             with(ArrayList<String>(header.size)) {
                 add(key.toString())
                 add(model::class.java.name)
+                yield(this)
+            }
+        }
+    }
+}
+
+val DumperCapabilities = dumper {
+    registryName = ResourceLocation(ID, "capabilities")
+    header = listOf("Interface", "Default Instance Class", "Storage Class")
+    iterator { amounts ->
+        for ((key, value) in CapabilityManager.INSTANCE.readField<IdentityHashMap<String, Capability<*>>>("providers")) {
+            with(ArrayList<String>(header.size)) {
+                add(key)
+                val defaultInstance = value.defaultInstance
+                add(if(defaultInstance == null) "" else defaultInstance::class.java.name)
+                add(value.storage::class.java.name)
                 yield(this)
             }
         }

@@ -26,6 +26,7 @@ private fun Appendable.appendRow(row: List<String>) {
 val ExporterCsv = fileExporter {
     registryName = ResourceLocation(ID, "csv")
     exporter { header, table, amounts, directory, baseFilename ->
+        val outputs = mutableListOf<ExporterOutput>()
         val tableFile = File(directory, "$baseFilename.csv")
         val amountsFile = File(directory, "${baseFilename}_amounts.csv")
         tableFile.printWriter().use { writer ->
@@ -36,19 +37,23 @@ val ExporterCsv = fileExporter {
                     appendRow(row)
                 }
             }
+            outputs.add(ExporterOutput("exporterOutput.csv.name", tableFile))
         }
-        amountsFile.printWriter().use { writer ->
-            with(writer) {
-                var start = true
-                for(entry in amounts) {
-                    if(start)
-                        start = false
-                    else
-                        appendln()
-                    appendRow(listOf(entry.first, entry.second.toString()))
+        if(!amounts.isEmpty()) {
+            amountsFile.printWriter().use { writer ->
+                with(writer) {
+                    var start = true
+                    for (entry in amounts) {
+                        if (start)
+                            start = false
+                        else
+                            appendln()
+                        appendRow(listOf(entry.first, entry.second.toString()))
+                    }
                 }
             }
+            outputs.add(ExporterOutput("exporterOutput.amounts.name", amountsFile))
         }
-        listOf(ExporterOutput("exporterOutput.csv.name", tableFile), ExporterOutput("exporterOutput.amounts.name", amountsFile))
+        outputs
     }
 }

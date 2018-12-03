@@ -36,6 +36,7 @@ object Events {
             register(DumperVillagerProfessions)
             register(DumperEntities)
             register(DumperModels)
+            register(DumperCapabilities)
         }
     }
 }
