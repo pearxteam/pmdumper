@@ -2,7 +2,6 @@ package ru.pearx.pmdumper
 
 import net.minecraft.item.ItemStack
 import net.minecraft.util.ResourceLocation
-import net.minecraftforge.fml.common.registry.VillagerRegistry
 import net.minecraftforge.registries.IForgeRegistry
 import net.minecraftforge.registries.IForgeRegistryEntry
 import org.apache.commons.lang3.reflect.FieldUtils

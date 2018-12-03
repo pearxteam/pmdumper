@@ -20,15 +20,9 @@ import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.oredict.OreDictionary
 import ru.pearx.pmdumper.*
 import java.util.IdentityHashMap
-import javax.annotation.Resource
 import kotlin.collections.ArrayList
-import kotlin.collections.List
 import kotlin.collections.component1
 import kotlin.collections.component2
-import kotlin.collections.iterator
-import kotlin.collections.joinToString
-import kotlin.collections.listOf
-import kotlin.collections.mutableListOf
 
 
 val DumperBiomes = dumper {
