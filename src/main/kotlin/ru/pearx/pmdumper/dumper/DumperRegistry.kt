@@ -37,6 +37,7 @@ object Events {
             register(DumperEntities)
             register(DumperModels)
             register(DumperCapabilities)
+            register(DumperBlocks)
         }
     }
 }

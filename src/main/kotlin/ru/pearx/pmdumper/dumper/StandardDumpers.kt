@@ -20,6 +20,7 @@ import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.oredict.OreDictionary
 import ru.pearx.pmdumper.*
 import java.util.IdentityHashMap
+import javax.annotation.Resource
 import kotlin.collections.ArrayList
 import kotlin.collections.List
 import kotlin.collections.component1
@@ -282,6 +283,25 @@ val DumperCapabilities = dumper {
                 val defaultInstance = value.defaultInstance
                 add(if(defaultInstance == null) "" else defaultInstance::class.java.name)
                 add(value.storage::class.java.name)
+                yield(this)
+            }
+        }
+    }
+}
+
+val DumperBlocks = dumper {
+    registryName = ResourceLocation(ID, "blocks")
+    header = listOf("ID", "Class Name", "BlockState Properties", "BlockState Class Name")
+    iterator { amounts ->
+        for(block in ForgeRegistries.BLOCKS) {
+            with(ArrayList<String>(header.size)) {
+                with(block) {
+                    amounts += registryName
+                    add(registryName.toString())
+                    add(this::class.java.name)
+                    add(blockState.properties.toString())
+                    add(blockState::class.java.name)
+                }
                 yield(this)
             }
         }
