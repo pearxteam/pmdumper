@@ -2,8 +2,10 @@ package ru.pearx.pmdumper
 
 import net.minecraft.item.ItemStack
 import net.minecraft.util.ResourceLocation
+import net.minecraftforge.fml.common.registry.VillagerRegistry
 import net.minecraftforge.registries.IForgeRegistry
 import net.minecraftforge.registries.IForgeRegistryEntry
+import org.apache.commons.lang3.reflect.FieldUtils
 
 internal fun <T : IForgeRegistryEntry<T>> lookupRegistryElements(registry: IForgeRegistry<T>, name: String): List<T> {
     val foundElements = mutableListOf<T>()
@@ -69,3 +71,5 @@ fun ItemStack.toFullString() = StringBuilder().apply {
 }.toString()
 
 fun Int.toHexColorString() = "#${Integer.toHexString(this).toUpperCase().padStart(6, '0')}"
+
+inline fun <reified T> Any.readField(name: String) = FieldUtils.readField(this, name, true) as T

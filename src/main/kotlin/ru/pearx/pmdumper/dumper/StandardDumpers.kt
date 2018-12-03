@@ -5,6 +5,7 @@ import net.minecraft.client.Minecraft
 import net.minecraft.client.util.ITooltipFlag
 import net.minecraft.creativetab.CreativeTabs
 import net.minecraft.entity.EnumCreatureType
+import net.minecraft.init.Items
 import net.minecraft.item.ItemBlock
 import net.minecraft.item.ItemStack
 import net.minecraft.util.NonNullList
@@ -16,6 +17,10 @@ import net.minecraftforge.fml.common.registry.ForgeRegistries
 import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.oredict.OreDictionary
 import ru.pearx.pmdumper.*
+import org.apache.commons.lang3.reflect.FieldUtils
+import net.minecraftforge.fml.common.registry.VillagerRegistry
+
+
 
 val DumperBiomes = dumper {
     registryName = ResourceLocation(ID, "biomes")
@@ -187,6 +192,71 @@ val DumperSounds = dumper {
                     amounts += registryName
                     add(registryName.toString())
                 }
+                yield(this)
+            }
+        }
+    }
+}
+
+val DumperVillagerProfessions = dumper {
+    registryName = ResourceLocation(ID, "villagerprofessions")
+    header = listOf("ID", "Skin", "Zombie Skin", "Career Names")
+    iterator { amounts ->
+        for(profession in ForgeRegistries.VILLAGER_PROFESSIONS) {
+            with(ArrayList<String>(header.size)) {
+                with(profession) {
+                    amounts += registryName
+                    add(registryName.toString())
+                    add(skin.toString())
+                    add(zombieSkin.toString())
+                    add(StringBuilder().apply { // todo: dump trades
+                        var start = true
+                        for(career in profession.readField<List<VillagerRegistry.VillagerCareer>>("careers")) {
+                            if(start)
+                                start = false
+                            else
+                                appendln()
+                            append(career.name)
+                        }
+                    }.toString())
+                }
+                yield(this)
+            }
+        }
+    }
+}
+
+val DumperEntities = dumper {
+    registryName = ResourceLocation(ID, "entities")
+    header = listOf("ID", "Name", "Class Name", "Primary Egg Color", "Secondary Egg Color")
+    iterator { amounts ->
+        for(entity in ForgeRegistries.ENTITIES) {
+            with(ArrayList<String>(header.size)) {
+                with(entity) {
+                    amounts += registryName
+                    add(registryName.toString())
+                    add(name)
+                    add(entityClass.name)
+                    add(egg?.primaryColor?.toHexColorString() ?: "")
+                    add(egg?.secondaryColor?.toHexColorString() ?: "")
+                }
+                yield(this)
+            }
+        }
+    }
+}
+
+val DumperModels = dumper {
+    registryName = ResourceLocation(ID, "models")
+    header = listOf("Variant", "Class Name")
+    iterator { amounts ->
+        val registry = Minecraft.getMinecraft().modelManager.modelRegistry
+        for(key in registry.keys) {
+            val model = registry.getObject(key)!!
+            amounts += key
+            with(ArrayList<String>(header.size)) {
+                add(key.toString())
+                add(model::class.java.name)
                 yield(this)
             }
         }

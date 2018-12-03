@@ -33,6 +33,9 @@ object Events {
             register(DumperItemStacks)
             register(DumperPotions)
             register(DumperBiomes)
+            register(DumperVillagerProfessions)
+            register(DumperEntities)
+            register(DumperModels)
         }
     }
 }
