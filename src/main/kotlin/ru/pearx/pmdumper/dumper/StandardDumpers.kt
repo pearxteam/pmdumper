@@ -64,7 +64,7 @@ val DumperBiomes = dumper {
 
 val DumperEnchantments = dumper {
     registryName = ResourceLocation(ID, "enchantments")
-    header = listOf("ID", "Name", "Class Name", "Levels", "Rarity", "Is Curse", "Type", "Allowed on Books", "Is Treasure", "Localized Name [Min Enchantability - Max Enchantability]...")
+    header = listOf("ID", "Name", "Class Name", "Levels", "Rarity", "Is Curse", "Type", "Allowed on Books", "Is Treasure", "Localized Name [Min Enchantability - Max Enchantability]")
     iterator { amounts ->
         for (ench in ForgeRegistries.ENCHANTMENTS) {
             with(ArrayList<String>(header.size)) {
@@ -80,7 +80,12 @@ val DumperEnchantments = dumper {
                     add(isAllowedOnBooks.toPlusMinusString())
                     add(isTreasureEnchantment.toPlusMinusString())
                     add(StringBuilder().apply {
+                        var start = true
                         for (lvl in minLevel..maxLevel) {
+                            if(start)
+                                start = false
+                            else
+                                appendln()
                             append("${getTranslatedName(lvl)} [${getMinEnchantability(lvl)} - ${getMaxEnchantability(lvl)}]")
                         }
                     }.toString())
