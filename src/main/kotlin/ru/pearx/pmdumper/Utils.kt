@@ -51,18 +51,18 @@ internal fun <T : IForgeRegistryEntry<T>> getRegistryElementName(registry: IForg
 fun Boolean.toPlusMinusString() = if(this) "+" else "-"
 
 fun ItemStack.toFullString() = StringBuilder().apply {
-    append(displayName)
-    if(count != 1) {
-        append(" x")
-        append(count)
-    }
-    append(" (")
     append(item.registryName)
+
     if(metadata != 0) {
         append(":")
         append(metadata)
     }
-    append(")")
+
+    if(count != 1) {
+        append("*")
+        append(count)
+    }
+
     if(hasTagCompound()) {
         append(" ")
         append(tagCompound.toString())
