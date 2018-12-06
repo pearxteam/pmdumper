@@ -38,6 +38,7 @@ object Events {
             register(DumperModels)
             register(DumperCapabilities)
             register(DumperBlocks)
+            register(DumperAdvancements)
         }
     }
 }

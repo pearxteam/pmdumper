@@ -1,6 +1,7 @@
 package ru.pearx.pmdumper.dumper
 
 import moze_intel.projecte.utils.EMCHelper
+import net.minecraft.advancements.Advancement
 import net.minecraft.client.Minecraft
 import net.minecraft.client.util.ITooltipFlag
 import net.minecraft.creativetab.CreativeTabs
@@ -10,6 +11,7 @@ import net.minecraft.item.ItemStack
 import net.minecraft.util.NonNullList
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.text.translation.I18n
+import net.minecraftforge.common.DimensionManager
 import net.minecraftforge.common.capabilities.Capability
 import net.minecraftforge.common.capabilities.CapabilityManager
 import net.minecraftforge.fml.common.FMLCommonHandler
@@ -23,6 +25,7 @@ import java.util.IdentityHashMap
 import kotlin.collections.ArrayList
 import kotlin.collections.component1
 import kotlin.collections.component2
+import kotlin.math.exp
 
 
 val DumperBiomes = dumper {
@@ -82,7 +85,7 @@ val DumperEnchantments = dumper {
                     add(StringBuilder().apply {
                         var start = true
                         for (lvl in minLevel..maxLevel) {
-                            if(start)
+                            if (start)
                                 start = false
                             else
                                 appendln()
@@ -132,6 +135,17 @@ val DumperItemStacks = dumper {
                         }.toString())
                         add(getItemStackLimit(stack).toString())
                         add(getMaxDamage(stack).toString())
+                        if (FMLCommonHandler.instance().side == Side.CLIENT)
+                            add(Minecraft.getMinecraft().renderItem.itemModelMesher.getItemModel(stack).let {
+                                val reg = Minecraft.getMinecraft().modelManager.modelRegistry
+                                for (k in reg.keys) {
+                                    if (reg.getObject(k) == it)
+                                        return@let k.toString()
+                                }
+                                return@let ""
+                            })
+                        else
+                            add("N/A")
                         if (Loader.isModLoaded(PROJECTE_ID))
                             add(if (EMCHelper.doesItemHaveEmc(stack)) EMCHelper.getEmcValue(stack).toString() else "")
                         else
@@ -280,7 +294,7 @@ val DumperCapabilities = dumper {
             with(ArrayList<String>(header.size)) {
                 add(key)
                 val defaultInstance = value.defaultInstance
-                add(if(defaultInstance == null) "" else defaultInstance::class.java.name)
+                add(if (defaultInstance == null) "" else defaultInstance::class.java.name)
                 add(value.storage::class.java.name)
                 yield(this)
             }
@@ -292,7 +306,7 @@ val DumperBlocks = dumper {
     registryName = ResourceLocation(ID, "blocks")
     header = listOf("ID", "Class Name", "BlockState Properties", "BlockState Class Name")
     iterator { amounts ->
-        for(block in ForgeRegistries.BLOCKS) {
+        for (block in ForgeRegistries.BLOCKS) {
             with(ArrayList<String>(header.size)) {
                 with(block) {
                     amounts += registryName
@@ -300,6 +314,57 @@ val DumperBlocks = dumper {
                     add(this::class.java.name)
                     add(blockState.properties.toString())
                     add(blockState::class.java.name)
+                }
+                yield(this)
+            }
+        }
+    }
+}
+
+val DumperAdvancements = dumper {
+    registryName = ResourceLocation(ID, "advancements")
+    header = listOf("ID", "Display Text", "Title", "Description", "Icon", "X", "Y", "Background", "Frame", "Is Hidden", "Should Announce", "Should Show Toast", "Parent", "Children", "Reward Experience", "Reward Loot", "Reward Recipes", "Reward Function")
+    iterator { amounts ->
+        val advancements = mutableListOf<Advancement>()
+        for (w in DimensionManager.getWorlds())
+            for (adv in w.advancementManager.advancements)
+                if (adv !in advancements)
+                    advancements.add(adv)
+        for (adv in advancements) {
+            with(ArrayList<String>(header.size)) {
+                with(adv) {
+                    amounts += id
+                    add(id.toString())
+                    add(displayText.formattedText)
+                    display?.run {
+                        add(title.formattedText)
+                        add(description.formattedText)
+                        add(icon.toFullString())
+                        add(x.toString())
+                        add(y.toString())
+                        add(background?.toString() ?: "")
+                        add(frame.toString())
+                        add(isHidden.toPlusMinusString())
+                        add(shouldAnnounceToChat().toPlusMinusString())
+                        add(shouldShowToast().toPlusMinusString())
+                    } ?: repeat(10) { add("") }
+                    add(parent?.id?.toString() ?: "")
+                    add(StringBuilder().apply {
+                        var start = true
+                        for(child in children) {
+                            if(start)
+                                start = false
+                            else
+                                appendln()
+                            append(child.id.toString())
+                        }
+                    }.toString())
+                    rewards.apply {
+                        add(experience.toString())
+                        add(loot.joinToString(separator = System.lineSeparator()))
+                        add(recipes.joinToString(separator = System.lineSeparator()))
+                        add(function?.toString() ?: "")
+                    }
                 }
                 yield(this)
             }
