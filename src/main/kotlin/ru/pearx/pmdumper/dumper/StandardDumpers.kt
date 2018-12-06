@@ -26,6 +26,21 @@ import kotlin.collections.ArrayList
 import kotlin.collections.component1
 import kotlin.collections.component2
 import kotlin.math.exp
+import net.minecraft.world.storage.loot.LootTable
+import net.minecraft.world.storage.loot.LootTableList
+import net.minecraft.world.storage.loot.LootContext
+import net.minecraft.world.storage.loot.conditions.LootConditionManager
+import net.minecraft.world.storage.loot.conditions.LootCondition
+import net.minecraft.world.storage.loot.functions.LootFunctionManager
+import net.minecraft.world.storage.loot.functions.LootFunction
+import net.minecraft.world.storage.loot.LootEntry
+import net.minecraft.world.storage.loot.LootPool
+import net.minecraft.world.storage.loot.RandomValueRange
+import com.google.gson.GsonBuilder
+import com.google.gson.Gson
+import net.minecraft.world.storage.loot.LootTableManager
+
+
 
 
 val DumperBiomes = dumper {
@@ -366,6 +381,23 @@ val DumperAdvancements = dumper {
                         add(function?.toString() ?: "")
                     }
                 }
+                yield(this)
+            }
+        }
+    }
+}
+
+val DumperLootTables = dumper {
+    registryName = ResourceLocation(ID, "loottables")
+    header = listOf("ID", "Loot Data")
+    iterator { amounts ->
+        val manager = LootTableManager(null)
+        val gs = GsonBuilder().registerTypeAdapter(RandomValueRange::class.java, RandomValueRange.Serializer()).registerTypeAdapter(LootPool::class.java, LootPool.Serializer()).registerTypeAdapter(LootTable::class.java, LootTable.Serializer()).registerTypeHierarchyAdapter(LootEntry::class.java, LootEntry.Serializer()).registerTypeHierarchyAdapter(LootFunction::class.java, LootFunctionManager.Serializer()).registerTypeHierarchyAdapter(LootCondition::class.java, LootConditionManager.Serializer()).registerTypeHierarchyAdapter(LootContext.EntityTarget::class.java, LootContext.EntityTarget.Serializer()).setPrettyPrinting().create()
+        for (loc in LootTableList.getAll()) {
+            with(ArrayList<String>(header.size)) {
+                amounts += loc
+                add(loc.toString())
+                add(gs.toJson(manager.getLootTableFromLocation(loc)))
                 yield(this)
             }
         }
