@@ -1,8 +1,10 @@
 package ru.pearx.pmdumper.dumper
 
+import com.google.gson.GsonBuilder
 import moze_intel.projecte.utils.EMCHelper
 import net.minecraft.advancements.Advancement
 import net.minecraft.client.Minecraft
+import net.minecraft.client.renderer.texture.TextureAtlasSprite
 import net.minecraft.client.util.ITooltipFlag
 import net.minecraft.creativetab.CreativeTabs
 import net.minecraft.entity.EnumCreatureType
@@ -11,6 +13,11 @@ import net.minecraft.item.ItemStack
 import net.minecraft.util.NonNullList
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.text.translation.I18n
+import net.minecraft.world.storage.loot.*
+import net.minecraft.world.storage.loot.conditions.LootCondition
+import net.minecraft.world.storage.loot.conditions.LootConditionManager
+import net.minecraft.world.storage.loot.functions.LootFunction
+import net.minecraft.world.storage.loot.functions.LootFunctionManager
 import net.minecraftforge.common.DimensionManager
 import net.minecraftforge.common.capabilities.Capability
 import net.minecraftforge.common.capabilities.CapabilityManager
@@ -25,22 +32,6 @@ import java.util.IdentityHashMap
 import kotlin.collections.ArrayList
 import kotlin.collections.component1
 import kotlin.collections.component2
-import kotlin.math.exp
-import net.minecraft.world.storage.loot.LootTable
-import net.minecraft.world.storage.loot.LootTableList
-import net.minecraft.world.storage.loot.LootContext
-import net.minecraft.world.storage.loot.conditions.LootConditionManager
-import net.minecraft.world.storage.loot.conditions.LootCondition
-import net.minecraft.world.storage.loot.functions.LootFunctionManager
-import net.minecraft.world.storage.loot.functions.LootFunction
-import net.minecraft.world.storage.loot.LootEntry
-import net.minecraft.world.storage.loot.LootPool
-import net.minecraft.world.storage.loot.RandomValueRange
-import com.google.gson.GsonBuilder
-import com.google.gson.Gson
-import net.minecraft.world.storage.loot.LootTableManager
-
-
 
 
 val DumperBiomes = dumper {
@@ -236,7 +227,7 @@ val DumperSounds = dumper {
 }
 
 val DumperVillagerProfessions = dumper {
-    registryName = ResourceLocation(ID, "villagerprofessions")
+    registryName = ResourceLocation(ID, "villager_professions")
     header = listOf("ID", "Skin", "Zombie Skin", "Career Names")
     iterator { amounts ->
         for (profession in ForgeRegistries.VILLAGER_PROFESSIONS) {
@@ -247,7 +238,6 @@ val DumperVillagerProfessions = dumper {
                     add(skin.toString())
                     add(zombieSkin.toString())
                     add(StringBuilder().apply {
-                        // todo: dump trades
                         var start = true
                         for (career in profession.readField<List<VillagerRegistry.VillagerCareer>>("careers")) {
                             if (start)
@@ -286,7 +276,7 @@ val DumperEntities = dumper {
 
 val DumperModels = dumper {
     registryName = ResourceLocation(ID, "models")
-    header = listOf("Variant", "Class Name")
+    header = listOf("Variant", "Class Name", "Is Ambient Occlusion", "Is GUI 3D", "Is Built In Renderer", "Particle Texture", "Model Textures")
     iterator { amounts ->
         val registry = Minecraft.getMinecraft().modelManager.modelRegistry
         for (key in registry.keys) {
@@ -294,7 +284,19 @@ val DumperModels = dumper {
             amounts += key
             with(ArrayList<String>(header.size)) {
                 add(key.toString())
-                add(model::class.java.name)
+                with(model) {
+                    add(this::class.java.name)
+                    add(isAmbientOcclusion.toPlusMinusString())
+                    add(isGui3d.toPlusMinusString())
+                    add(isBuiltInRenderer.toPlusMinusString())
+                    add(particleTexture?.iconName ?: "")
+                    val textures = mutableListOf<TextureAtlasSprite>()
+                    for(quad in getQuads(null, null, 0)) {
+                        if(quad.sprite !in textures)
+                            textures.add(quad.sprite)
+                    }
+                    add(textures.joinToString(separator = System.lineSeparator()) { it -> it.iconName })
+                }
                 yield(this)
             }
         }
@@ -366,8 +368,8 @@ val DumperAdvancements = dumper {
                     add(parent?.id?.toString() ?: "")
                     add(StringBuilder().apply {
                         var start = true
-                        for(child in children) {
-                            if(start)
+                        for (child in children) {
+                            if (start)
                                 start = false
                             else
                                 appendln()
@@ -388,7 +390,7 @@ val DumperAdvancements = dumper {
 }
 
 val DumperLootTables = dumper {
-    registryName = ResourceLocation(ID, "loottables")
+    registryName = ResourceLocation(ID, "loot_tables")
     header = listOf("ID", "Loot Data")
     iterator { amounts ->
         val manager = LootTableManager(null)
