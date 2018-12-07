@@ -289,6 +289,7 @@ val DumperModels = dumper {
                     add(isAmbientOcclusion.toPlusMinusString())
                     add(isGui3d.toPlusMinusString())
                     add(isBuiltInRenderer.toPlusMinusString())
+                    @Suppress("UNNECESSARY_SAFE_CALL") // *Obvious Facts Time* Because particleTexture can be null
                     add(particleTexture?.iconName ?: "")
                     val textures = mutableListOf<TextureAtlasSprite>()
                     for(quad in getQuads(null, null, 0)) {
@@ -306,7 +307,7 @@ val DumperModels = dumper {
 val DumperCapabilities = dumper {
     registryName = ResourceLocation(ID, "capabilities")
     header = listOf("Interface", "Default Instance Class", "Storage Class")
-    iterator { amounts ->
+    iterator {
         for ((key, value) in CapabilityManager.INSTANCE.readField<IdentityHashMap<String, Capability<*>>>("providers")) {
             with(ArrayList<String>(header.size)) {
                 add(key)
