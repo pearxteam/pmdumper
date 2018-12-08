@@ -3,6 +3,8 @@ package ru.pearx.pmdumper.exporter
 import net.minecraft.client.Minecraft
 import net.minecraft.util.ResourceLocation
 import net.minecraftforge.registries.IForgeRegistryEntry
+import ru.pearx.pmdumper.PMDumper
+import ru.pearx.pmdumper.PMDumperCommand
 import ru.pearx.pmdumper.dumper.DumperAmounts
 import ru.pearx.pmdumper.dumper.DumperRegistry
 import ru.pearx.pmdumper.dumper.IDumper
@@ -23,7 +25,7 @@ interface IExporter : IForgeRegistryEntry<IExporter> {
 interface IFileExporter : IExporter {
     override fun export(dumper: IDumper): List<ExporterOutput> {
         val amounts = DumperAmounts()
-        return exportToFile(dumper.header, dumper.dump(amounts).sortedBy { it[dumper.columnToSortBy] }, amounts.sort(), File(Minecraft.getMinecraft().gameDir, "pmdumper"), "${getRegistryElementName(DumperRegistry, dumper.registryName!!)}_${LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss"))}")
+        return exportToFile(dumper.header, dumper.dump(amounts).sortedBy { it[dumper.columnToSortBy] }, amounts.sort(), PMDumper.dumpersDirectory, "${getRegistryElementName(DumperRegistry, dumper.registryName!!)}_${LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss"))}")
     }
 
     fun exportToFile(header: List<String>, table: List<List<String>>, amounts: List<Pair<String, Int>>, directory: File, baseFilename: String): List<ExporterOutput>

@@ -2,6 +2,8 @@ package ru.pearx.pmdumper
 
 import net.minecraft.item.ItemStack
 import net.minecraft.util.ResourceLocation
+import net.minecraftforge.fml.common.FMLCommonHandler
+import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.registries.IForgeRegistry
 import net.minecraftforge.registries.IForgeRegistryEntry
 import org.apache.commons.lang3.reflect.FieldUtils
@@ -48,27 +50,54 @@ internal fun <T : IForgeRegistryEntry<T>> getRegistryElementName(registry: IForg
         name.path
 }
 
-fun Boolean.toPlusMinusString() = if(this) "+" else "-"
+fun Boolean.toPlusMinusString() = if (this) "+" else "-"
 
 fun ItemStack.toFullString() = StringBuilder().apply {
     append(item.registryName)
 
-    if(metadata != 0) {
+    if (metadata != 0) {
         append(":")
         append(metadata)
     }
 
-    if(count != 1) {
+    if (count != 1) {
         append("*")
         append(count)
     }
 
-    if(hasTagCompound()) {
+    if (hasTagCompound()) {
         append(" ")
         append(tagCompound.toString())
     }
 }.toString()
 
+fun <V : IForgeRegistryEntry<V>> IForgeRegistry<V>.registerNonNull(v: V?) {
+    if (v != null)
+        register(v)
+}
+
 fun Int.toHexColorString() = "#${Integer.toHexString(this).toUpperCase().padStart(6, '0')}"
 
+fun <T> mutableListOfNotNull(vararg elements: T?): MutableList<T> {
+    val lst = ArrayList<T>(elements.size)
+    for(element in elements)
+        if(element != null)
+            lst.add(element)
+    return lst
+}
+
 inline fun <reified T> Any.readField(name: String) = FieldUtils.readField(this, name, true) as T
+
+val isClient = FMLCommonHandler.instance().side == Side.CLIENT
+
+
+fun <T> ifOrNull(bool: Boolean, value: T) = if(bool) value else null
+inline fun <T> ifOrNull(bool: Boolean, func: () -> T) = if(bool) func() else null
+
+fun <T> client(value: T) = ifOrNull(isClient, value)
+inline fun <T> client(func: () -> T) = ifOrNull(isClient, func)
+
+inline fun client(func: () -> Unit) {
+    if(isClient)
+        func()
+}

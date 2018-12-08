@@ -2,6 +2,7 @@ package ru.pearx.pmdumper.dumper
 
 import net.minecraft.util.ResourceLocation
 import net.minecraftforge.registries.IForgeRegistryEntry
+import ru.pearx.pmdumper.isClient
 
 class DumperAmounts : MutableMap<String, Int> by hashMapOf() {
     operator fun plusAssign(value: String) {
@@ -45,8 +46,11 @@ class Dumper : IDumper {
     }
 }
 
-inline fun dumper(init: Dumper.() -> Unit): IDumper {
-    val dumper = Dumper()
-    dumper.init()
-    return dumper
+inline fun dumper(init: Dumper.() -> Unit): IDumper = Dumper().apply { init() }
+
+inline fun clientDumper(init: Dumper.() -> Unit): IDumper? {
+    return if(isClient)
+        Dumper().apply { init() }
+    else
+        null
 }

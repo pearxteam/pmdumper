@@ -36,36 +36,35 @@ import kotlin.collections.component2
 
 val DumperBiomes = dumper {
     registryName = ResourceLocation(ID, "biomes")
-    header = mutableListOf("ID", "Name", "Default Temperature", "Base Height", "Height Variation", "Class Name", "Is Snowy", "Can Rain", "Rainfall", "Base Biome", "Filler Block", "Top Block", "Water Color", "Water Color Multiplier", "Creature Spawning Chance").apply {
-        for (type in EnumCreatureType.values()) {
+    header = mutableListOfNotNull("ID", client("Name"), "Default Temperature", "Base Height", "Height Variation", "Class Name", "Is Snowy", "Can Rain", "Rainfall", "Base Biome", "Filler Block", "Top Block", client("Water Color"), "Water Color Multiplier", "Creature Spawning Chance").apply {
+        for (type in EnumCreatureType.values())
             add("${type.toString().toLowerCase().capitalize()} Spawn List: Entity*(Min Group-Max Group):Weight")
-        }
-        iterator { amounts ->
-            for (biome in ForgeRegistries.BIOMES) {
-                with(ArrayList<String>(header.size)) {
-                    with(biome) {
-                        amounts += registryName
-                        add(registryName.toString())
-                        add(biomeName)
-                        add(defaultTemperature.toString())
-                        add(baseHeight.toString())
-                        add(heightVariation.toString())
-                        add(this::class.java.name)
-                        add(isSnowyBiome.toPlusMinusString())
-                        add(canRain().toPlusMinusString())
-                        add(rainfall.toString())
-                        add(baseBiomeRegName ?: "")
-                        add(fillerBlock.toString())
-                        add(topBlock.toString())
-                        add(waterColor.toHexColorString())
-                        add(waterColorMultiplier.toString())
-                        add(spawningChance.toString())
-                        for (type in EnumCreatureType.values()) {
-                            add(getSpawnableList(type).joinToString(separator = System.lineSeparator()))
-                        }
+    }
+    iterator { amounts ->
+        for (biome in ForgeRegistries.BIOMES) {
+            with(ArrayList<String>(header.size)) {
+                with(biome) {
+                    amounts += registryName
+                    add(registryName.toString())
+                    client { add(biomeName) }
+                    add(defaultTemperature.toString())
+                    add(baseHeight.toString())
+                    add(heightVariation.toString())
+                    add(this::class.java.name)
+                    add(isSnowyBiome.toPlusMinusString())
+                    add(canRain().toPlusMinusString())
+                    add(rainfall.toString())
+                    add(baseBiomeRegName ?: "")
+                    add(fillerBlock.toString())
+                    add(topBlock.toString())
+                    client { add(waterColor.toHexColorString()) }
+                    add(waterColorMultiplier.toString())
+                    add(spawningChance.toString())
+                    for (type in EnumCreatureType.values()) {
+                        add(getSpawnableList(type).joinToString(separator = System.lineSeparator()))
                     }
-                    yield(this)
                 }
+                yield(this)
             }
         }
     }
@@ -107,7 +106,7 @@ val DumperEnchantments = dumper {
 
 val DumperItemStacks = dumper {
     registryName = ResourceLocation(ID, "itemstacks")
-    header = listOf("ID", "Metadata", "NBT Tag Compound", "Display Name", "Tooltip", "Translation Key", "Class Name", "Is ItemBlock", "OreDict Names", "Max Stack Size", "Max Damage", "EMC")
+    header = listOfNotNull("ID", "Metadata", "NBT Tag Compound", "Display Name", client("Tooltip"), "Translation Key", "Class Name", "Is ItemBlock", "OreDict Names", "Max Stack Size", "Max Damage", ifOrNull(Loader.isModLoaded(PROJECTE_ID), "EMC"))
     iterator { amounts ->
         for (item in ForgeRegistries.ITEMS) {
             val stacks = NonNullList.create<ItemStack>().apply {
@@ -121,10 +120,7 @@ val DumperItemStacks = dumper {
                         add(stack.metadata.toString())
                         add(stack.tagCompound?.toString() ?: "")
                         add(getItemStackDisplayName(stack))
-                        if (FMLCommonHandler.instance().side == Side.CLIENT)
-                            add(mutableListOf<String>().apply { addInformation(stack, Minecraft.getMinecraft().world, this, ITooltipFlag.TooltipFlags.NORMAL) }.joinToString(separator = System.lineSeparator()))
-                        else
-                            add("N/A")
+                        client { add(mutableListOf<String>().apply { addInformation(stack, Minecraft.getMinecraft().world, this, ITooltipFlag.TooltipFlags.NORMAL) }.joinToString(separator = System.lineSeparator())) }
                         add(getTranslationKey(stack))
                         add(this::class.java.name)
                         add((this is ItemBlock).toPlusMinusString())
@@ -137,21 +133,9 @@ val DumperItemStacks = dumper {
                                     appendln()
                                 append(OreDictionary.getOreName(id))
                             }
-
                         }.toString())
                         add(getItemStackLimit(stack).toString())
                         add(getMaxDamage(stack).toString())
-                        if (FMLCommonHandler.instance().side == Side.CLIENT)
-                            add(Minecraft.getMinecraft().renderItem.itemModelMesher.getItemModel(stack).let {
-                                val reg = Minecraft.getMinecraft().modelManager.modelRegistry
-                                for (k in reg.keys) {
-                                    if (reg.getObject(k) == it)
-                                        return@let k.toString()
-                                }
-                                return@let ""
-                            })
-                        else
-                            add("N/A")
                         if (Loader.isModLoaded(PROJECTE_ID))
                             add(if (EMCHelper.doesItemHaveEmc(stack)) EMCHelper.getEmcValue(stack).toString() else "")
                         else
@@ -166,7 +150,7 @@ val DumperItemStacks = dumper {
 
 val DumperPotions = dumper {
     registryName = ResourceLocation(ID, "potions")
-    header = listOf("ID", "Display Name", "Name", "Class Name", "Is Bad Effect", "Is Instant", "Is Beneficial", "Status Icon Index", "Liquid Color", "Curative Items", "Attribute Modifiers")
+    header = listOfNotNull("ID", "Display Name", "Name", "Class Name", "Is Bad Effect", "Is Instant", client("Is Beneficial"), client("Status Icon Index"), client("Liquid Color"), "Curative Items", client("Attribute Modifiers"))
     iterator { amounts ->
         for (potion in ForgeRegistries.POTIONS) {
             with(ArrayList<String>(header.size)) {
@@ -178,9 +162,11 @@ val DumperPotions = dumper {
                     add(this::class.java.name)
                     add(isBadEffect.toPlusMinusString())
                     add(isInstant.toPlusMinusString())
-                    add(isBeneficial.toPlusMinusString())
-                    add(statusIconIndex.toString())
-                    add(liquidColor.toHexColorString())
+                    client {
+                        add(isBeneficial.toPlusMinusString())
+                        add(statusIconIndex.toString())
+                        add(liquidColor.toHexColorString())
+                    }
                     add(StringBuilder().apply {
                         var start = true
                         for (item in curativeItems) {
@@ -191,18 +177,22 @@ val DumperPotions = dumper {
                             append(item.toFullString())
                         }
                     }.toString())
-                    add(StringBuilder().apply {
-                        var start = true
-                        for ((attribute, modifier) in attributeModifierMap) {
-                            if (start)
-                                start = true
-                            else
-                                appendln()
-                            append(attribute.name)
-                            append(": ")
-                            append(modifier)
-                        }
-                    }.toString())
+                    client {
+                        add(
+                            StringBuilder().apply {
+                                var start = true
+                                for ((attribute, modifier) in attributeModifierMap) {
+                                    if (start)
+                                        start = true
+                                    else
+                                        appendln()
+                                    append(attribute.name)
+                                    append(": ")
+                                    append(modifier)
+                                }
+                            }.toString()
+                        )
+                    }
                 }
                 yield(this)
             }
@@ -274,7 +264,7 @@ val DumperEntities = dumper {
     }
 }
 
-val DumperModels = dumper {
+val DumperModels = clientDumper {
     registryName = ResourceLocation(ID, "models")
     header = listOf("Variant", "Class Name", "Is Ambient Occlusion", "Is GUI 3D", "Is Built In Renderer", "Particle Texture", "Model Textures")
     iterator { amounts ->
@@ -289,11 +279,10 @@ val DumperModels = dumper {
                     add(isAmbientOcclusion.toPlusMinusString())
                     add(isGui3d.toPlusMinusString())
                     add(isBuiltInRenderer.toPlusMinusString())
-                    @Suppress("UNNECESSARY_SAFE_CALL") // *Obvious Facts Time* Because particleTexture can be null
                     add(particleTexture?.iconName ?: "")
                     val textures = mutableListOf<TextureAtlasSprite>()
-                    for(quad in getQuads(null, null, 0)) {
-                        if(quad.sprite !in textures)
+                    for (quad in getQuads(null, null, 0)) {
+                        if (quad.sprite !in textures)
                             textures.add(quad.sprite)
                     }
                     add(textures.joinToString(separator = System.lineSeparator()) { it -> it.iconName })
@@ -341,7 +330,7 @@ val DumperBlocks = dumper {
 
 val DumperAdvancements = dumper {
     registryName = ResourceLocation(ID, "advancements")
-    header = listOf("ID", "Display Text", "Title", "Description", "Icon", "X", "Y", "Background", "Frame", "Is Hidden", "Should Announce", "Should Show Toast", "Parent", "Children", "Reward Experience", "Reward Loot", "Reward Recipes", "Reward Function")
+    header = listOfNotNull("ID", "Display Text", "Title", "Description", client("Icon"), client("X"), client("Y"), client("Background"), "Frame", "Is Hidden", "Should Announce", client("Should Show Toast"), "Parent", "Children", "Reward Experience", "Reward Loot", "Reward Recipes", "Reward Function")
     iterator { amounts ->
         val advancements = mutableListOf<Advancement>()
         for (w in DimensionManager.getWorlds())
@@ -357,15 +346,17 @@ val DumperAdvancements = dumper {
                     display?.run {
                         add(title.formattedText)
                         add(description.formattedText)
-                        add(icon.toFullString())
-                        add(x.toString())
-                        add(y.toString())
-                        add(background?.toString() ?: "")
+                        client {
+                            add(icon.toFullString())
+                            add(x.toString())
+                            add(y.toString())
+                            add(background?.toString() ?: "")
+                        }
                         add(frame.toString())
                         add(isHidden.toPlusMinusString())
                         add(shouldAnnounceToChat().toPlusMinusString())
-                        add(shouldShowToast().toPlusMinusString())
-                    } ?: repeat(10) { add("") }
+                        client { add(shouldShowToast().toPlusMinusString()) }
+                    } ?: repeat(if (isClient) 10 else 5) { add("") }
                     add(parent?.id?.toString() ?: "")
                     add(StringBuilder().apply {
                         var start = true

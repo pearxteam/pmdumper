@@ -9,6 +9,7 @@ import net.minecraftforge.registries.RegistryBuilder
 import ru.pearx.pmdumper.ID
 import ru.pearx.pmdumper.getRegistryElementNames
 import ru.pearx.pmdumper.lookupRegistryElements
+import ru.pearx.pmdumper.registerNonNull
 
 lateinit var DumperRegistry: IForgeRegistry<IDumper> private set
 
@@ -35,7 +36,7 @@ object Events {
             register(DumperBiomes)
             register(DumperVillagerProfessions)
             register(DumperEntities)
-            register(DumperModels)
+            registerNonNull(DumperModels)
             register(DumperCapabilities)
             register(DumperBlocks)
             register(DumperAdvancements)
