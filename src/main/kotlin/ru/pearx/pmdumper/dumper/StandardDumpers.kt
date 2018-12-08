@@ -279,15 +279,15 @@ val DumperModels = clientDumper {
                     add(isBuiltInRenderer.toPlusMinusString())
                     val particleTextureLocation = particleTexture?.let { ResourceLocation(it.iconName) }
                     add(particleTextureLocation?.toString() ?: "")
-                    add(particleTextureLocation?.let { "assets/${it.namespace}/textures/${it.path}" } ?: "")
+                    add(particleTextureLocation?.let { "assets/${it.namespace}/textures/${it.path}.png" } ?: "")
                     val textures = mutableListOf<TextureAtlasSprite>()
                     for (quad in getQuads(null, null, 0)) {
                         if (quad.sprite !in textures)
                             textures.add(quad.sprite)
                     }
                     val texturesLocations = textures.map { ResourceLocation(it.iconName) }
-                    add(texturesLocations.joinToString(separator = System.lineSeparator()) { toString() })
-                    add(texturesLocations.joinToString(separator = System.lineSeparator()) { "assets/${it.namespace}/textures/${it.path}" })
+                    add(texturesLocations.joinToString(separator = System.lineSeparator()) { it -> it.toString() })
+                    add(texturesLocations.joinToString(separator = System.lineSeparator()) { it -> "assets/${it.namespace}/textures/${it.path}.png" })
                 }
                 yield(this)
             }
