@@ -8,7 +8,6 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite
 import net.minecraft.client.util.ITooltipFlag
 import net.minecraft.creativetab.CreativeTabs
 import net.minecraft.entity.EnumCreatureType
-import net.minecraft.init.Items
 import net.minecraft.item.ItemBlock
 import net.minecraft.item.ItemStack
 import net.minecraft.util.NonNullList
@@ -265,7 +264,7 @@ val DumperEntities = dumper {
 
 val DumperModels = clientDumper {
     registryName = ResourceLocation(ID, "models")
-    header = listOf("Variant", "Class Name", "Is Ambient Occlusion", "Is GUI 3D", "Is Built In Renderer", "Particle Texture", "Model Textures")
+    header = listOf("Variant", "Class Name", "Is Ambient Occlusion", "Is GUI 3D", "Is Built In Renderer", "Particle Texture", "Particle Texture Path", "Model Textures", "Model Textures Path")
     iterator { amounts ->
         val registry = Minecraft.getMinecraft().modelManager.modelRegistry
         for (key in registry.keys) {
@@ -278,13 +277,17 @@ val DumperModels = clientDumper {
                     add(isAmbientOcclusion.toPlusMinusString())
                     add(isGui3d.toPlusMinusString())
                     add(isBuiltInRenderer.toPlusMinusString())
-                    add(particleTexture?.iconName ?: "")
+                    val particleTextureLocation = particleTexture?.let { ResourceLocation(it.iconName) }
+                    add(particleTextureLocation?.toString() ?: "")
+                    add(particleTextureLocation?.let { "assets/${it.namespace}/textures/${it.path}" } ?: "")
                     val textures = mutableListOf<TextureAtlasSprite>()
                     for (quad in getQuads(null, null, 0)) {
                         if (quad.sprite !in textures)
                             textures.add(quad.sprite)
                     }
-                    add(textures.joinToString(separator = System.lineSeparator()) { it -> it.iconName })
+                    val texturesLocations = textures.map { ResourceLocation(it.iconName) }
+                    add(texturesLocations.joinToString(separator = System.lineSeparator()) { toString() })
+                    add(texturesLocations.joinToString(separator = System.lineSeparator()) { "assets/${it.namespace}/textures/${it.path}" })
                 }
                 yield(this)
             }
