@@ -8,6 +8,7 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite
 import net.minecraft.client.util.ITooltipFlag
 import net.minecraft.creativetab.CreativeTabs
 import net.minecraft.entity.EnumCreatureType
+import net.minecraft.init.Items
 import net.minecraft.item.ItemBlock
 import net.minecraft.item.ItemStack
 import net.minecraft.util.NonNullList
@@ -18,14 +19,13 @@ import net.minecraft.world.storage.loot.conditions.LootCondition
 import net.minecraft.world.storage.loot.conditions.LootConditionManager
 import net.minecraft.world.storage.loot.functions.LootFunction
 import net.minecraft.world.storage.loot.functions.LootFunctionManager
+import net.minecraftforge.client.ItemModelMesherForge
 import net.minecraftforge.common.DimensionManager
 import net.minecraftforge.common.capabilities.Capability
 import net.minecraftforge.common.capabilities.CapabilityManager
-import net.minecraftforge.fml.common.FMLCommonHandler
 import net.minecraftforge.fml.common.Loader
 import net.minecraftforge.fml.common.registry.ForgeRegistries
 import net.minecraftforge.fml.common.registry.VillagerRegistry
-import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.oredict.OreDictionary
 import ru.pearx.pmdumper.*
 import java.util.IdentityHashMap
@@ -106,7 +106,7 @@ val DumperEnchantments = dumper {
 
 val DumperItemStacks = dumper {
     registryName = ResourceLocation(ID, "itemstacks")
-    header = listOfNotNull("ID", "Metadata", "NBT Tag Compound", "Display Name", client("Tooltip"), "Translation Key", "Class Name", "Is ItemBlock", "OreDict Names", "Max Stack Size", "Max Damage", ifOrNull(Loader.isModLoaded(PROJECTE_ID), "EMC"))
+    header = listOfNotNull("ID", "Metadata", "NBT Tag Compound", "Display Name", client("Tooltip"), "Translation Key", "Class Name", "Is ItemBlock", "OreDict Names", "Max Stack Size", "Max Damage", client("Model Name"), ifOrNull(Loader.isModLoaded(PROJECTE_ID), "EMC"))
     iterator { amounts ->
         for (item in ForgeRegistries.ITEMS) {
             val stacks = NonNullList.create<ItemStack>().apply {
@@ -136,10 +136,9 @@ val DumperItemStacks = dumper {
                         }.toString())
                         add(getItemStackLimit(stack).toString())
                         add(getMaxDamage(stack).toString())
+                        client { add((Minecraft.getMinecraft().renderItem.itemModelMesher as ItemModelMesherForge).getLocation(stack).toString()) }
                         if (Loader.isModLoaded(PROJECTE_ID))
                             add(if (EMCHelper.doesItemHaveEmc(stack)) EMCHelper.getEmcValue(stack).toString() else "")
-                        else
-                            add("N/A")
                     }
                     yield(this)
                 }
