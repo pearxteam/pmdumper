@@ -11,6 +11,8 @@ import net.minecraft.entity.EnumCreatureType
 import net.minecraft.item.ItemBlock
 import net.minecraft.item.ItemStack
 import net.minecraft.item.crafting.FurnaceRecipes
+import net.minecraft.tileentity.TileEntity
+import net.minecraft.util.ITickable
 import net.minecraft.util.NonNullList
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.text.translation.I18n
@@ -27,6 +29,7 @@ import net.minecraftforge.fluids.FluidRegistry
 import net.minecraftforge.fluids.FluidStack
 import net.minecraftforge.fml.common.Loader
 import net.minecraftforge.fml.common.registry.ForgeRegistries
+import net.minecraftforge.fml.common.registry.GameRegistry
 import net.minecraftforge.fml.common.registry.VillagerRegistry
 import net.minecraftforge.oredict.OreDictionary
 import ru.pearx.pmdumper.*
@@ -445,6 +448,23 @@ val DumperFluids = dumper {
                     add(isLighterThanAir.toPlusMinusString())
                     add(canBePlacedInWorld().toPlusMinusString())
                 }
+                yield(this)
+            }
+        }
+    }
+}
+
+val DumperTileEntities = dumper {
+    registryName = ResourceLocation(ID, "tile_entities")
+    header = listOf("ID", "Class Name", "Is Tickable")
+    iterator { amounts ->
+        for(id in TileEntity.REGISTRY.keys) {
+            amounts += id
+            with(ArrayList<String>(header.size)) {
+                add(id.toString())
+                val tileClass = TileEntity.REGISTRY.getObject(id)!!
+                add(tileClass.name)
+                add(ITickable::class.java.isAssignableFrom(tileClass).toPlusMinusString())
                 yield(this)
             }
         }
