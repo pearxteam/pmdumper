@@ -418,7 +418,7 @@ val DumperSmeltingRecipes = dumper {
 
 val DumperFluids = dumper {
     registryName = ResourceLocation(ID, "fluids")
-    header = listOf("Name", "Mod ID", "Unlocalized Name", "Display Name", "Still Texture", "Flowing Texture", "Overlay Texture", "Fill Sound", "Empty Sound", "Luminosity", "Density", "Temperature", "Viscosity", "Is Gaseous", "Rarity", "Block", "Color", "Is Lighter than Air", "Can be Placed in World")
+    header = listOf("ID", "Unlocalized Name", "Display Name", "Still Texture", "Flowing Texture", "Overlay Texture", "Fill Sound", "Empty Sound", "Luminosity", "Density", "Temperature", "Viscosity", "Is Gaseous", "Rarity", "Block", "Color", "Is Lighter than Air", "Can be Placed in World")
     iterator { amounts ->
         for(fluid in FluidRegistry.getRegisteredFluids().values) {
             with(ArrayList<String>(header.size)) {
@@ -426,8 +426,7 @@ val DumperFluids = dumper {
                 val modId = FluidRegistry.getModId(stack) ?: ""
                 amounts += modId
                 with(fluid) {
-                    add(name)
-                    add(modId)
+                    add(ResourceLocation(modId, name).toString())
                     add(getUnlocalizedName(stack))
                     add(getLocalizedName(stack))
                     add(getStill(stack).toTexturesPath())
