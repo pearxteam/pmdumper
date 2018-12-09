@@ -41,6 +41,7 @@ object Events {
             register(DumperBlocks)
             register(DumperAdvancements)
             register(DumperLootTables)
+            register(DumperSmeltingRecipes)
         }
     }
 }

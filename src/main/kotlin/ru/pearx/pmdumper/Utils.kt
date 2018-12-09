@@ -52,12 +52,15 @@ internal fun <T : IForgeRegistryEntry<T>> getRegistryElementName(registry: IForg
 
 fun Boolean.toPlusMinusString() = if (this) "+" else "-"
 
-fun ItemStack.toFullString() = StringBuilder().apply {
+fun ItemStack.toFullString(wildcardMetaAsAny: Boolean = false) = StringBuilder().apply {
     append(item.registryName)
 
     if (metadata != 0) {
         append(":")
-        append(metadata)
+        if (wildcardMetaAsAny && metadata == 32767)
+            append("any")
+        else
+            append(metadata)
     }
 
     if (count != 1) {
@@ -80,8 +83,8 @@ fun Int.toHexColorString() = "#${Integer.toHexString(this).toUpperCase().padStar
 
 fun <T> mutableListOfNotNull(vararg elements: T?): MutableList<T> {
     val lst = ArrayList<T>(elements.size)
-    for(element in elements)
-        if(element != null)
+    for (element in elements)
+        if (element != null)
             lst.add(element)
     return lst
 }
@@ -91,13 +94,13 @@ inline fun <reified T> Any.readField(name: String) = FieldUtils.readField(this, 
 val isClient = FMLCommonHandler.instance().side == Side.CLIENT
 
 
-fun <T> ifOrNull(bool: Boolean, value: T) = if(bool) value else null
-inline fun <T> ifOrNull(bool: Boolean, func: () -> T) = if(bool) func() else null
+fun <T> ifOrNull(bool: Boolean, value: T) = if (bool) value else null
+inline fun <T> ifOrNull(bool: Boolean, func: () -> T) = if (bool) func() else null
 
 fun <T> client(value: T) = ifOrNull(isClient, value)
 inline fun <T> client(func: () -> T) = ifOrNull(isClient, func)
 
 inline fun client(func: () -> Unit) {
-    if(isClient)
+    if (isClient)
         func()
 }

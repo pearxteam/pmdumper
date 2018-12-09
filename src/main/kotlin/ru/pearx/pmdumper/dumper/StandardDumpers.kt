@@ -10,6 +10,7 @@ import net.minecraft.creativetab.CreativeTabs
 import net.minecraft.entity.EnumCreatureType
 import net.minecraft.item.ItemBlock
 import net.minecraft.item.ItemStack
+import net.minecraft.item.crafting.FurnaceRecipes
 import net.minecraft.util.NonNullList
 import net.minecraft.util.ResourceLocation
 import net.minecraft.util.text.translation.I18n
@@ -394,6 +395,23 @@ val DumperLootTables = dumper {
                 amounts += loc
                 add(loc.toString())
                 add(gs.toJson(manager.getLootTableFromLocation(loc)))
+                yield(this)
+            }
+        }
+    }
+}
+
+val DumperSmeltingRecipes = dumper {
+    registryName = ResourceLocation(ID, "smelting_recipes")
+    header = listOf("Input", "Output", "XP")
+    columnToSortBy = 1
+    iterator {
+        val recipes = FurnaceRecipes.instance()
+        for((input, output) in recipes.smeltingList.entries) {
+            with(ArrayList<String>(header.size)) {
+                add(input.toFullString(true))
+                add(output.toFullString())
+                add(recipes.getSmeltingExperience(output).toString())
                 yield(this)
             }
         }
