@@ -422,26 +422,27 @@ val DumperFluids = dumper {
     iterator { amounts ->
         for(fluid in FluidRegistry.getRegisteredFluids().values) {
             with(ArrayList<String>(header.size)) {
-                val modId = FluidRegistry.getModId(FluidStack(fluid, 1)) ?: ""
+                val stack = FluidStack(fluid, 1)
+                val modId = FluidRegistry.getModId(stack) ?: ""
                 amounts += modId
                 with(fluid) {
                     add(name)
                     add(modId)
-                    add(unlocalizedName)
-                    add(I18n.translateToLocalFormatted(unlocalizedName))
-                    add(still.toTexturesPath())
-                    add(flowing.toTexturesPath())
+                    add(getUnlocalizedName(stack))
+                    add(getLocalizedName(stack))
+                    add(getStill(stack).toTexturesPath())
+                    add(getFlowing(stack).toTexturesPath())
                     add(overlay?.toTexturesPath() ?: "")
-                    add(fillSound.registryName.toString())
-                    add(emptySound.registryName.toString())
-                    add(luminosity.toString())
-                    add(density.toString())
-                    add(temperature.toString())
-                    add(viscosity.toString())
-                    add(isGaseous.toPlusMinusString())
-                    add(rarity.toString())
+                    add(getFillSound(stack).registryName.toString())
+                    add(getEmptySound(stack).registryName.toString())
+                    add(getLuminosity(stack).toString())
+                    add(getDensity(stack).toString())
+                    add(getTemperature(stack).toString())
+                    add(getViscosity(stack).toString())
+                    add(isGaseous(stack).toPlusMinusString())
+                    add(getRarity(stack).toString())
                     add(block?.registryName?.toString() ?: "")
-                    add(color.toHexColorString())
+                    add(getColor(stack).toHexColorString())
                     add(isLighterThanAir.toPlusMinusString())
                     add(canBePlacedInWorld().toPlusMinusString())
                 }
