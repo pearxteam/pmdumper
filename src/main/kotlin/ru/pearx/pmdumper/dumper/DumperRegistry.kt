@@ -42,6 +42,7 @@ object Events {
             register(DumperAdvancements)
             register(DumperLootTables)
             register(DumperSmeltingRecipes)
+            register(DumperFluids)
         }
     }
 }

@@ -23,6 +23,8 @@ import net.minecraftforge.client.ItemModelMesherForge
 import net.minecraftforge.common.DimensionManager
 import net.minecraftforge.common.capabilities.Capability
 import net.minecraftforge.common.capabilities.CapabilityManager
+import net.minecraftforge.fluids.FluidRegistry
+import net.minecraftforge.fluids.FluidStack
 import net.minecraftforge.fml.common.Loader
 import net.minecraftforge.fml.common.registry.ForgeRegistries
 import net.minecraftforge.fml.common.registry.VillagerRegistry
@@ -412,6 +414,41 @@ val DumperSmeltingRecipes = dumper {
                 add(input.toFullString(true))
                 add(output.toFullString())
                 add(recipes.getSmeltingExperience(output).toString())
+                yield(this)
+            }
+        }
+    }
+}
+
+val DumperFluids = dumper {
+    registryName = ResourceLocation(ID, "fluids")
+    header = listOf("Name", "Mod ID", "Unlocalized Name", "Display Name", "Still Texture", "Flowing Texture", "Overlay Texture", "Fill Sound", "Empty Sound", "Luminosity", "Density", "Temperature", "Viscosity", "Is Gaseous", "Rarity", "Block", "Color", "Is Lighter than Air", "Can be Placed in World")
+    iterator { amounts ->
+        for(fluid in FluidRegistry.getRegisteredFluids().values) {
+            with(ArrayList<String>(header.size)) {
+                val modId = FluidRegistry.getModId(FluidStack(fluid, 1)) ?: ""
+                amounts += modId
+                with(fluid) {
+                    add(name)
+                    add(modId)
+                    add(unlocalizedName)
+                    add(I18n.translateToLocalFormatted(unlocalizedName))
+                    add(still.toTexturesPath())
+                    add(flowing.toTexturesPath())
+                    add(overlay?.toTexturesPath() ?: "")
+                    add(fillSound.registryName.toString())
+                    add(emptySound.registryName.toString())
+                    add(luminosity.toString())
+                    add(density.toString())
+                    add(temperature.toString())
+                    add(viscosity.toString())
+                    add(isGaseous.toPlusMinusString())
+                    add(rarity.toString())
+                    add(block?.registryName?.toString() ?: "")
+                    add(color.toHexColorString())
+                    add(isLighterThanAir.toPlusMinusString())
+                    add(canBePlacedInWorld().toPlusMinusString())
+                }
                 yield(this)
             }
         }
