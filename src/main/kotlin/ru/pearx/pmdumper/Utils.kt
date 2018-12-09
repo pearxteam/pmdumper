@@ -81,9 +81,9 @@ fun <V : IForgeRegistryEntry<V>> IForgeRegistry<V>.registerNonNull(v: V?) {
 
 fun Int.toHexColorString() = "#${Integer.toHexString(this).toUpperCase().padStart(6, '0')}"
 
-fun ResourceLocation.toPath(topPath: String, postfix: String) = "assets/$namespace/$topPath/$path$postfix"
+fun ResourceLocation.toPath(topPath: String = "", postfix: String = "") = "assets/$namespace/$topPath/$path$postfix"
 
-fun ResourceLocation.toTexturesPath() = toPath("textures", ".png")
+fun ResourceLocation.toTexturesPath(pngPostfix: Boolean = true) = toPath("textures", ".png")
 
 fun <T> mutableListOfNotNull(vararg elements: T?): MutableList<T> {
     val lst = ArrayList<T>(elements.size)

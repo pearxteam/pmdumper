@@ -9,6 +9,7 @@ import net.minecraft.client.util.ITooltipFlag
 import net.minecraft.creativetab.CreativeTabs
 import net.minecraft.entity.EnumCreatureType
 import net.minecraft.item.ItemBlock
+import net.minecraft.item.ItemFood
 import net.minecraft.item.ItemStack
 import net.minecraft.item.crafting.FurnaceRecipes
 import net.minecraft.tileentity.TileEntity
@@ -29,7 +30,6 @@ import net.minecraftforge.fluids.FluidRegistry
 import net.minecraftforge.fluids.FluidStack
 import net.minecraftforge.fml.common.Loader
 import net.minecraftforge.fml.common.registry.ForgeRegistries
-import net.minecraftforge.fml.common.registry.GameRegistry
 import net.minecraftforge.fml.common.registry.VillagerRegistry
 import net.minecraftforge.oredict.OreDictionary
 import ru.pearx.pmdumper.*
@@ -229,8 +229,8 @@ val DumperVillagerProfessions = dumper {
                 with(profession) {
                     amounts += registryName
                     add(registryName.toString())
-                    add(skin.toString())
-                    add(zombieSkin.toString())
+                    add(skin.toPath())
+                    add(zombieSkin.toPath())
                     add(StringBuilder().apply {
                         var start = true
                         for (career in profession.readField<List<VillagerRegistry.VillagerCareer>>("careers")) {
@@ -354,7 +354,7 @@ val DumperAdvancements = dumper {
                             add(icon.toFullString())
                             add(x.toString())
                             add(y.toString())
-                            add(background?.toString() ?: "")
+                            add(background?.toPath() ?: "")
                         }
                         add(frame.toString())
                         add(isHidden.toPlusMinusString())
@@ -408,7 +408,7 @@ val DumperSmeltingRecipes = dumper {
     columnToSortBy = 1
     iterator {
         val recipes = FurnaceRecipes.instance()
-        for((input, output) in recipes.smeltingList.entries) {
+        for ((input, output) in recipes.smeltingList.entries) {
             with(ArrayList<String>(header.size)) {
                 add(input.toFullString(true))
                 add(output.toFullString())
@@ -423,7 +423,7 @@ val DumperFluids = dumper {
     registryName = ResourceLocation(ID, "fluids")
     header = listOf("ID", "Unlocalized Name", "Display Name", "Still Texture", "Flowing Texture", "Overlay Texture", "Fill Sound", "Empty Sound", "Luminosity", "Density", "Temperature", "Viscosity", "Is Gaseous", "Rarity", "Block", "Color", "Is Lighter than Air", "Can be Placed in World")
     iterator { amounts ->
-        for(fluid in FluidRegistry.getRegisteredFluids().values) {
+        for (fluid in FluidRegistry.getRegisteredFluids().values) {
             with(ArrayList<String>(header.size)) {
                 val stack = FluidStack(fluid, 1)
                 val modId = FluidRegistry.getModId(stack) ?: ""
@@ -458,7 +458,7 @@ val DumperTileEntities = dumper {
     registryName = ResourceLocation(ID, "tile_entities")
     header = listOf("ID", "Class Name", "Is Tickable")
     iterator { amounts ->
-        for(id in TileEntity.REGISTRY.keys) {
+        for (id in TileEntity.REGISTRY.keys) {
             amounts += id
             with(ArrayList<String>(header.size)) {
                 add(id.toString())
@@ -466,6 +466,39 @@ val DumperTileEntities = dumper {
                 add(tileClass.name)
                 add(ITickable::class.java.isAssignableFrom(tileClass).toPlusMinusString())
                 yield(this)
+            }
+        }
+    }
+}
+
+val DumperFood = dumper {
+    registryName = ResourceLocation(ID, "food")
+    header = listOf("Item", "Heal Amount", "Saturation Modifier", "Is Wolfs Favorite Meal", "Is Always Edible", "Item Use Duration", "Potion Effect", "Potion Effect Probability")
+    iterator { amounts ->
+        for (item in ForgeRegistries.ITEMS) {
+            if (item is ItemFood) {
+                val stacks = NonNullList.create<ItemStack>().apply {
+                    item.getSubItems(item.creativeTab ?: CreativeTabs.SEARCH, this)
+                }
+                for (stack in stacks) {
+                    with(ArrayList<String>(header.size)) {
+                        with(item) {
+                            amounts += registryName
+                            add(stack.toFullString())
+                            add(getHealAmount(stack).toString())
+                            add(getSaturationModifier(stack).toString())
+                            add(isWolfsFavoriteMeat.toPlusMinusString())
+                            add(alwaysEdible.toPlusMinusString())
+                            add(itemUseDuration.toString())
+                            if (potionId != null) {
+                                add(potionId.toString())
+                                add(potionEffectProbability.toString())
+                            }
+                            else repeat(2) { add("") }
+                        }
+                        yield(this)
+                    }
+                }
             }
         }
     }
