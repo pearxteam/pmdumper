@@ -8,6 +8,7 @@ import net.minecraft.advancements.Advancement
 import net.minecraft.block.state.IBlockState
 import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.block.model.IBakedModel
+import net.minecraft.client.renderer.block.model.ModelResourceLocation
 import net.minecraft.client.renderer.block.model.WeightedBakedModel
 import net.minecraft.client.renderer.texture.TextureAtlasSprite
 import net.minecraft.client.util.ITooltipFlag
@@ -294,7 +295,7 @@ val DumperModels = clientDumper {
                             textures.add(quad.sprite)
                     }
                     add(textures.joinToString(separator = System.lineSeparator()) { it -> ResourceLocation(it.iconName).toTexturesPath() })
-                    add(getModelPath())
+                    add(getModelPath(key))
                     add(this::class.java.name)
                     add(isAmbientOcclusion.toPlusMinusString())
                     add(isGui3d.toPlusMinusString())
@@ -309,13 +310,13 @@ val DumperModels = clientDumper {
 
 // hack \/
 @SideOnly(Side.CLIENT)
-private fun IBakedModel.getModelPath(): String {
+private fun IBakedModel.getModelPath(location: ModelResourceLocation): String {
     return when (this::class.java.name) {
         "net.minecraftforge.client.model.ModelLoader\$VanillaModelWrapper\$1" -> this.readField<Any>("this$1").readField<ResourceLocation>("location").toPath("", ".json")
         "net.minecraft.client.renderer.block.model.MultipartBakedModel" -> {
             val lst = mutableListOf<String>()
             for(subModel in readField<Map<Predicate<IBlockState>, IBakedModel>>("selectors").values) {
-                val subPath = subModel.getModelPath()
+                val subPath = subModel.getModelPath(location)
                 if(subPath !in lst)
                     lst.add(subPath)
             }
@@ -325,7 +326,7 @@ private fun IBakedModel.getModelPath(): String {
             val lst = mutableListOf<String>()
             lst.add(readField<ResourceLocation>("location").toPath("", ".json"))
             for(subModel in readField<ImmutableMap<String, IBakedModel>>("parts").values) {
-                val subPath = subModel.getModelPath()
+                val subPath = subModel.getModelPath(location)
                 if(subPath !in lst)
                     lst.add(subPath)
             }
@@ -334,12 +335,13 @@ private fun IBakedModel.getModelPath(): String {
         "net.minecraft.client.renderer.block.model.WeightedBakedModel" -> {
             val lst = mutableListOf<String>()
             for(model in readField<List<Any>>("models")) {
-                val path = model.readField<IBakedModel>("model").getModelPath()
+                val path = model.readField<IBakedModel>("model").getModelPath(location)
                 if(path !in lst)
                     lst.add(path)
             }
             lst.joinToString(separator = System.lineSeparator())
         }
+        "net.minecraftforge.client.model.BakedItemModel" -> location.toPath("models/item", ".json")
         else -> ""
     }
 }
