@@ -307,6 +307,7 @@ val DumperModels = clientDumper {
     }
 }
 
+// hack \/
 @SideOnly(Side.CLIENT)
 private fun IBakedModel.getModelPath(): String {
     return when (this::class.java.name) {
