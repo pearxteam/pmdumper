@@ -1,9 +1,14 @@
 package ru.pearx.pmdumper.dumper
 
+import com.google.common.base.Predicate
+import com.google.common.collect.ImmutableMap
 import com.google.gson.GsonBuilder
 import moze_intel.projecte.utils.EMCHelper
 import net.minecraft.advancements.Advancement
+import net.minecraft.block.state.IBlockState
 import net.minecraft.client.Minecraft
+import net.minecraft.client.renderer.block.model.IBakedModel
+import net.minecraft.client.renderer.block.model.WeightedBakedModel
 import net.minecraft.client.renderer.texture.TextureAtlasSprite
 import net.minecraft.client.util.ITooltipFlag
 import net.minecraft.creativetab.CreativeTabs
@@ -31,6 +36,8 @@ import net.minecraftforge.fluids.FluidStack
 import net.minecraftforge.fml.common.Loader
 import net.minecraftforge.fml.common.registry.ForgeRegistries
 import net.minecraftforge.fml.common.registry.VillagerRegistry
+import net.minecraftforge.fml.relauncher.Side
+import net.minecraftforge.fml.relauncher.SideOnly
 import net.minecraftforge.oredict.OreDictionary
 import ru.pearx.pmdumper.*
 import java.util.IdentityHashMap
@@ -270,19 +277,16 @@ val DumperEntities = dumper {
 
 val DumperModels = clientDumper {
     registryName = ResourceLocation(ID, "models")
-    header = listOf("Variant", "Class Name", "Is Ambient Occlusion", "Is GUI 3D", "Is Built In Renderer", "Particle Texture", "Model Textures")
+    header = listOf("Variant", "Particle Texture", "Model Textures", "Model Path", "Class Name", "Is Ambient Occlusion", "Is GUI 3D", "Is Built In Renderer")
     iterator { amounts ->
         val registry = Minecraft.getMinecraft().modelManager.modelRegistry
+        val classes = mutableListOf<Class<*>>()
         for (key in registry.keys) {
             val model = registry.getObject(key)!!
             amounts += key
             with(ArrayList<String>(header.size)) {
                 add(key.toString())
                 with(model) {
-                    add(this::class.java.name)
-                    add(isAmbientOcclusion.toPlusMinusString())
-                    add(isGui3d.toPlusMinusString())
-                    add(isBuiltInRenderer.toPlusMinusString())
                     add(particleTexture?.let { ResourceLocation(it.iconName) }?.toTexturesPath() ?: "")
                     val textures = mutableListOf<TextureAtlasSprite>()
                     for (quad in getQuads(null, null, 0)) {
@@ -290,10 +294,52 @@ val DumperModels = clientDumper {
                             textures.add(quad.sprite)
                     }
                     add(textures.joinToString(separator = System.lineSeparator()) { it -> ResourceLocation(it.iconName).toTexturesPath() })
+                    add(getModelPath())
+                    add(this::class.java.name)
+                    add(isAmbientOcclusion.toPlusMinusString())
+                    add(isGui3d.toPlusMinusString())
+                    add(isBuiltInRenderer.toPlusMinusString())
                 }
                 yield(this)
             }
         }
+        println(classes)
+    }
+}
+
+@SideOnly(Side.CLIENT)
+private fun IBakedModel.getModelPath(): String {
+    return when (this::class.java.name) {
+        "net.minecraftforge.client.model.ModelLoader\$VanillaModelWrapper\$1" -> this.readField<Any>("this$1").readField<ResourceLocation>("location").toPath("", ".json")
+        "net.minecraft.client.renderer.block.model.MultipartBakedModel" -> {
+            val lst = mutableListOf<String>()
+            for(subModel in readField<Map<Predicate<IBlockState>, IBakedModel>>("selectors").values) {
+                val subPath = subModel.getModelPath()
+                if(subPath !in lst)
+                    lst.add(subPath)
+            }
+            lst.joinToString(separator = System.lineSeparator())
+        }
+        "net.minecraftforge.client.model.MultiModel\$Baked" -> {
+            val lst = mutableListOf<String>()
+            lst.add(readField<ResourceLocation>("location").toPath("", ".json"))
+            for(subModel in readField<ImmutableMap<String, IBakedModel>>("parts").values) {
+                val subPath = subModel.getModelPath()
+                if(subPath !in lst)
+                    lst.add(subPath)
+            }
+            lst.joinToString(separator = System.lineSeparator())
+        }
+        "net.minecraft.client.renderer.block.model.WeightedBakedModel" -> {
+            val lst = mutableListOf<String>()
+            for(model in readField<List<Any>>("models")) {
+                val path = model.readField<IBakedModel>("model").getModelPath()
+                if(path !in lst)
+                    lst.add(path)
+            }
+            lst.joinToString(separator = System.lineSeparator())
+        }
+        else -> ""
     }
 }
 
