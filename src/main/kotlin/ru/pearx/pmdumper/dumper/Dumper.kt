@@ -2,7 +2,7 @@ package ru.pearx.pmdumper.dumper
 
 import net.minecraft.util.ResourceLocation
 import net.minecraftforge.registries.IForgeRegistryEntry
-import ru.pearx.pmdumper.isClient
+import ru.pearx.pmdumper.utils.isClient
 
 class DumperAmounts : MutableMap<String, Int> by hashMapOf() {
     operator fun plusAssign(value: String) {
@@ -14,19 +14,22 @@ class DumperAmounts : MutableMap<String, Int> by hashMapOf() {
     fun sort(): List<Pair<String, Int>> = toList().sortedByDescending { (k, v) -> v }
 }
 
-typealias DumperIteratorCreator = suspend SequenceScope<List<String>>.(amounts: DumperAmounts) -> Unit
-
 interface IDumper : IForgeRegistryEntry<IDumper> {
     val header: List<String>
     val columnToSortBy: Int
-    fun dump(amounts: DumperAmounts): Iterable<List<String>>
+    fun dump(): Iterable<List<String>>
+    fun getAmounts(): DumperAmounts?
 
     override fun getRegistryType(): Class<IDumper> = IDumper::class.java
 }
 
+typealias DumperIteratorCreator = suspend SequenceScope<List<String>>.() -> Unit
+typealias DumperAmountsCreator = DumperAmounts.() -> Unit
+
 class Dumper : IDumper {
     private var registryName: ResourceLocation? = null
-    private lateinit var iterator: DumperIteratorCreator
+    private lateinit var iteratorBuilder: DumperIteratorCreator
+    private var amountsBuilder: DumperAmountsCreator? = null
 
     override lateinit var header: List<String>
 
@@ -39,17 +42,23 @@ class Dumper : IDumper {
         return this
     }
 
-    override fun dump(amounts: DumperAmounts): Iterable<List<String>> = Iterable { iterator<List<String>> { iterator(amounts) } }
+    override fun dump(): Iterable<List<String>> = Iterable { iterator<List<String>>(iteratorBuilder) }
+
+    override fun getAmounts(): DumperAmounts? = if (amountsBuilder == null) null else DumperAmounts().apply { amountsBuilder!!() }
 
     fun iterator(block: DumperIteratorCreator) {
-        iterator = block
+        iteratorBuilder = block
+    }
+
+    fun amounts(block: DumperAmountsCreator) {
+        amountsBuilder = block
     }
 }
 
 inline fun dumper(init: Dumper.() -> Unit): IDumper = Dumper().apply { init() }
 
 inline fun clientDumper(init: Dumper.() -> Unit): IDumper? {
-    return if(isClient)
+    return if (isClient)
         Dumper().apply { init() }
     else
         null

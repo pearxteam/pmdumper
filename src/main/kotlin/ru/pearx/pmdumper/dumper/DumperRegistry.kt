@@ -7,9 +7,10 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent
 import net.minecraftforge.registries.IForgeRegistry
 import net.minecraftforge.registries.RegistryBuilder
 import ru.pearx.pmdumper.ID
-import ru.pearx.pmdumper.getRegistryElementNames
-import ru.pearx.pmdumper.lookupRegistryElements
-import ru.pearx.pmdumper.registerNonNull
+import ru.pearx.pmdumper.dumper.standard.*
+import ru.pearx.pmdumper.utils.getRegistryElementNames
+import ru.pearx.pmdumper.utils.lookupRegistryElements
+import ru.pearx.pmdumper.utils.registerNonNull
 
 lateinit var DumperRegistry: IForgeRegistry<IDumper> private set
 
@@ -45,6 +46,7 @@ object Events {
             register(DumperFluids)
             register(DumperTileEntities)
             register(DumperFood)
+            register(DumperShapelessRecipes)
         }
     }
 }

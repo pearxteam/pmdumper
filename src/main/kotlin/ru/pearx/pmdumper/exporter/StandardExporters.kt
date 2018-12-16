@@ -39,20 +39,22 @@ val ExporterCsv = fileExporter {
             }
             outputs.add(ExporterOutput("exporterOutput.csv.name", tableFile))
         }
-        if(!amounts.isEmpty()) {
-            amountsFile.printWriter().use { writer ->
-                with(writer) {
-                    var start = true
-                    for (entry in amounts) {
-                        if (start)
-                            start = false
-                        else
-                            appendln()
-                        appendRow(listOf(entry.first, entry.second.toString()))
+        if(amounts != null) {
+            if (!amounts.isEmpty()) {
+                amountsFile.printWriter().use { writer ->
+                    with(writer) {
+                        var start = true
+                        for (entry in amounts) {
+                            if (start)
+                                start = false
+                            else
+                                appendln()
+                            appendRow(listOf(entry.first, entry.second.toString()))
+                        }
                     }
                 }
+                outputs.add(ExporterOutput("exporterOutput.amounts.name", amountsFile))
             }
-            outputs.add(ExporterOutput("exporterOutput.amounts.name", amountsFile))
         }
         outputs
     }

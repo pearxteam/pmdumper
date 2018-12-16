@@ -23,7 +23,7 @@ val projectEVersion: String by project
 val jeiVersion: String by project
 
 
-version = "$modVersion+$modBuildNumber"
+version = "$modVersion-$modBuildNumber"
 group = modGroup
 description = modDescription
 

@@ -1,14 +1,11 @@
 package ru.pearx.pmdumper.exporter
 
-import net.minecraft.client.Minecraft
 import net.minecraft.util.ResourceLocation
 import net.minecraftforge.registries.IForgeRegistryEntry
 import ru.pearx.pmdumper.PMDumper
-import ru.pearx.pmdumper.PMDumperCommand
-import ru.pearx.pmdumper.dumper.DumperAmounts
 import ru.pearx.pmdumper.dumper.DumperRegistry
 import ru.pearx.pmdumper.dumper.IDumper
-import ru.pearx.pmdumper.getRegistryElementName
+import ru.pearx.pmdumper.utils.getRegistryElementName
 import java.io.File
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -24,14 +21,13 @@ interface IExporter : IForgeRegistryEntry<IExporter> {
 
 interface IFileExporter : IExporter {
     override fun export(dumper: IDumper): List<ExporterOutput> {
-        val amounts = DumperAmounts()
-        return exportToFile(dumper.header, dumper.dump(amounts).sortedBy { it[dumper.columnToSortBy] }, amounts.sort(), PMDumper.dumpersDirectory, "${getRegistryElementName(DumperRegistry, dumper.registryName!!)}_${LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss"))}")
+        return exportToFile(dumper.header, dumper.dump().sortedBy { it[dumper.columnToSortBy] }, dumper.getAmounts()?.sort(), PMDumper.dumpersDirectory, "${getRegistryElementName(DumperRegistry, dumper.registryName!!)}_${LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss"))}")
     }
 
-    fun exportToFile(header: List<String>, table: List<List<String>>, amounts: List<Pair<String, Int>>, directory: File, baseFilename: String): List<ExporterOutput>
+    fun exportToFile(header: List<String>, table: List<List<String>>, amounts: List<Pair<String, Int>>?, directory: File, baseFilename: String): List<ExporterOutput>
 }
 
-typealias FileExporterExporter = (header: List<String>, table: List<List<String>>, amounts: List<Pair<String, Int>>, directory: File, baseFilename: String) -> List<ExporterOutput>
+typealias FileExporterExporter = (header: List<String>, table: List<List<String>>, amounts: List<Pair<String, Int>>?, directory: File, baseFilename: String) -> List<ExporterOutput>
 
 class FileExporter : IFileExporter {
     private lateinit var exporter: FileExporterExporter
@@ -44,7 +40,7 @@ class FileExporter : IFileExporter {
         return this
     }
 
-    override fun exportToFile(header: List<String>, table: List<List<String>>, amounts: List<Pair<String, Int>>, directory: File, baseFilename: String): List<ExporterOutput> {
+    override fun exportToFile(header: List<String>, table: List<List<String>>, amounts: List<Pair<String, Int>>?, directory: File, baseFilename: String): List<ExporterOutput> {
         directory.mkdirs()
         return exporter(header, table, amounts, directory, baseFilename)
     }
