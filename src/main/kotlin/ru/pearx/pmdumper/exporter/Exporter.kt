@@ -21,13 +21,13 @@ interface IExporter : IForgeRegistryEntry<IExporter> {
 
 interface IFileExporter : IExporter {
     override fun export(dumper: IDumper): List<ExporterOutput> {
-        return exportToFile(dumper.header, dumper.dump().sortedBy { it[dumper.columnToSortBy] }, dumper.getAmounts()?.sort(), PMDumper.dumpersDirectory, "${getRegistryElementName(DumperRegistry, dumper.registryName!!)}_${LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss"))}")
+        return exportToFile(dumper.header, { dumper.dump().sortedBy { it[dumper.columnToSortBy] } }, { dumper.getAmounts()?.sort() }, PMDumper.dumpersDirectory, "${getRegistryElementName(DumperRegistry, dumper.registryName!!)}_${LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss"))}")
     }
 
-    fun exportToFile(header: List<String>, table: List<List<String>>, amounts: List<Pair<String, Int>>?, directory: File, baseFilename: String): List<ExporterOutput>
+    fun exportToFile(header: List<String>, tableGetter: () -> List<List<String>>, amountsGetter: () -> List<Pair<String, Int>>?, directory: File, baseFilename: String): List<ExporterOutput>
 }
 
-typealias FileExporterExporter = (header: List<String>, table: List<List<String>>, amounts: List<Pair<String, Int>>?, directory: File, baseFilename: String) -> List<ExporterOutput>
+typealias FileExporterExporter = (header: List<String>, tableGetter: () -> List<List<String>>, amountsGetter: () -> List<Pair<String, Int>>?, directory: File, baseFilename: String) -> List<ExporterOutput>
 
 class FileExporter : IFileExporter {
     private lateinit var exporter: FileExporterExporter
@@ -40,9 +40,9 @@ class FileExporter : IFileExporter {
         return this
     }
 
-    override fun exportToFile(header: List<String>, table: List<List<String>>, amounts: List<Pair<String, Int>>?, directory: File, baseFilename: String): List<ExporterOutput> {
+    override fun exportToFile(header: List<String>, tableGetter: () -> List<List<String>>, amountsGetter: () -> List<Pair<String, Int>>?, directory: File, baseFilename: String): List<ExporterOutput> {
         directory.mkdirs()
-        return exporter(header, table, amounts, directory, baseFilename)
+        return exporter(header, tableGetter, amountsGetter, directory, baseFilename)
     }
 
     fun exporter(block: FileExporterExporter) {

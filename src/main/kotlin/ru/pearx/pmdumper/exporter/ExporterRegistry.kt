@@ -29,6 +29,8 @@ object Events {
     fun onRegisterDumpers(event: RegistryEvent.Register<IExporter>) {
         with(event.registry) {
             register(ExporterCsv)
+            register(ExporterAmounts)
+            register(ExporterCsvAmounts)
         }
     }
 }
