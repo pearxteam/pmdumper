@@ -13,24 +13,24 @@ fun ItemStack.appendTo(to: Appendable, wildcardMetaAsAny: Boolean = false) {
     to.apply {
         if (isEmpty) return
 
-        if (count != 1) {
-            append(count.toString())
-            append("*")
-        }
-
         append(item.registryName.toString())
 
         if (metadata != 0) {
-            append(":")
+            append(':')
             if (wildcardMetaAsAny && metadata == OreDictionary.WILDCARD_VALUE)
-                append("*")
+                append('*')
             else
                 append(metadata.toString())
         }
 
         if (hasTagCompound()) {
-            append(" ")
+            append(' ')
             append(tagCompound.toString())
+        }
+
+        if (count != 1) {
+            append(" x")
+            append(count.toString())
         }
     }
 }

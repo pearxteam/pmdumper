@@ -47,6 +47,7 @@ object Events {
             register(DumperTileEntities)
             register(DumperFood)
             register(DumperShapelessRecipes)
+            register(DumperShapedRecipes)
         }
     }
 }

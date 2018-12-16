@@ -1,13 +1,11 @@
 @file:JvmMultifileClass
 @file:JvmName("StandardDumpers")
-
 package ru.pearx.pmdumper.dumper.standard
 
 import net.minecraft.item.crafting.IRecipe
-import net.minecraft.item.crafting.ShapelessRecipes
 import net.minecraft.util.ResourceLocation
+import net.minecraftforge.common.crafting.IShapedRecipe
 import net.minecraftforge.fml.common.registry.ForgeRegistries
-import net.minecraftforge.oredict.ShapelessOreRecipe
 import ru.pearx.pmdumper.ID
 import ru.pearx.pmdumper.dumper.dumper
 import ru.pearx.pmdumper.utils.appendTo
@@ -49,6 +47,6 @@ val DumperShapelessRecipes = dumper {
 
 private inline fun eachShapeless(block: (recipe: IRecipe) -> Unit) {
     for (recipe in ForgeRegistries.RECIPES)
-        if (recipe is ShapelessOreRecipe || recipe is ShapelessRecipes)
+        if (recipe !is IShapedRecipe)
             block(recipe)
 }
