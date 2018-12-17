@@ -1,23 +1,20 @@
 @file:JvmMultifileClass
 @file:JvmName("StandardDumpers")
+
 package ru.pearx.pmdumper.dumper.standard
 
-import com.google.common.base.Predicate
 import com.google.common.collect.ImmutableMap
-import net.minecraft.block.state.IBlockState
 import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.block.model.IBakedModel
 import net.minecraft.client.renderer.block.model.ModelResourceLocation
+import net.minecraft.client.renderer.block.model.MultipartBakedModel
 import net.minecraft.client.renderer.texture.TextureAtlasSprite
 import net.minecraft.util.ResourceLocation
 import net.minecraftforge.fml.relauncher.Side
 import net.minecraftforge.fml.relauncher.SideOnly
-import ru.pearx.pmdumper.*
+import ru.pearx.pmdumper.ID
 import ru.pearx.pmdumper.dumper.clientDumper
-import ru.pearx.pmdumper.utils.readField
-import ru.pearx.pmdumper.utils.toPath
-import ru.pearx.pmdumper.utils.toPlusMinusString
-import ru.pearx.pmdumper.utils.toTexturesPath
+import ru.pearx.pmdumper.utils.*
 
 val DumperModels = clientDumper {
     registryName = ResourceLocation(ID, "models")
@@ -28,29 +25,28 @@ val DumperModels = clientDumper {
     }
     iterator {
         val registry = Minecraft.getMinecraft().modelManager.modelRegistry
-        val classes = mutableListOf<Class<*>>()
         for (key in registry.keys) {
             val model = registry.getObject(key)!!
-            with(ArrayList<String>(header.size)) {
+            tryDump(ArrayList(header.size)) {
                 add(key.toString())
                 with(model) {
-                    add(particleTexture?.let { ResourceLocation(it.iconName) }?.toTexturesPath() ?: "")
-                    val textures = mutableListOf<TextureAtlasSprite>()
-                    for (quad in getQuads(null, null, 0)) {
-                        if (quad.sprite !in textures)
-                            textures.add(quad.sprite)
+                    add { particleTexture?.let { ResourceLocation(it.iconName) }?.toTexturesPath() ?: "" }
+                    add {
+                        val textures = mutableListOf<TextureAtlasSprite>()
+                        for (quad in getQuads(null, null, 0)) {
+                            if (quad.sprite !in textures)
+                                textures.add(quad.sprite)
+                        }
+                        textures.joinToString(separator = System.lineSeparator()) { it -> ResourceLocation(it.iconName).toTexturesPath() }
                     }
-                    add(textures.joinToString(separator = System.lineSeparator()) { it -> ResourceLocation(it.iconName).toTexturesPath() })
-                    add(getModelPath(key))
+                    add { getModelPath(key) }
                     add(this::class.java.name)
                     add(isAmbientOcclusion.toPlusMinusString())
                     add(isGui3d.toPlusMinusString())
                     add(isBuiltInRenderer.toPlusMinusString())
                 }
-                yield(this)
             }
         }
-        println(classes)
     }
 }
 
@@ -61,7 +57,7 @@ private fun IBakedModel.getModelPath(location: ModelResourceLocation): String {
         "net.minecraftforge.client.model.ModelLoader\$VanillaModelWrapper\$1" -> this.readField<Any>("this$1").readField<ResourceLocation>("location").toPath("", ".json")
         "net.minecraft.client.renderer.block.model.MultipartBakedModel" -> {
             val lst = mutableListOf<String>()
-            for (subModel in readField<Map<Predicate<IBlockState>, IBakedModel>>("selectors").values) {
+            for (subModel in (this as MultipartBakedModel).selectors.values) {
                 val subPath = subModel.getModelPath(location)
                 if (subPath !in lst)
                     lst.add(subPath)
@@ -80,8 +76,8 @@ private fun IBakedModel.getModelPath(location: ModelResourceLocation): String {
         }
         "net.minecraft.client.renderer.block.model.WeightedBakedModel" -> {
             val lst = mutableListOf<String>()
-            for (model in readField<List<Any>>("models")) {
-                val path = model.readField<IBakedModel>("model").getModelPath(location)
+            for (model in readField<List<Any>>("models", "field_177565_b")) {
+                val path = model.readField<IBakedModel>("model", "field_185281_b").getModelPath(location)
                 if (path !in lst)
                     lst.add(path)
             }

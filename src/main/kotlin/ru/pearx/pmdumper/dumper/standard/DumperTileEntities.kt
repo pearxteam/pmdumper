@@ -1,5 +1,6 @@
 @file:JvmMultifileClass
 @file:JvmName("StandardDumpers")
+
 package ru.pearx.pmdumper.dumper.standard
 
 import net.minecraft.tileentity.TileEntity
@@ -8,6 +9,7 @@ import net.minecraft.util.ResourceLocation
 import ru.pearx.pmdumper.ID
 import ru.pearx.pmdumper.dumper.dumper
 import ru.pearx.pmdumper.utils.toPlusMinusString
+import ru.pearx.pmdumper.utils.tryDump
 
 val DumperTileEntities = dumper {
     registryName = ResourceLocation(ID, "tile_entities")
@@ -18,12 +20,11 @@ val DumperTileEntities = dumper {
     }
     iterator {
         for (id in TileEntity.REGISTRY.keys) {
-            with(ArrayList<String>(header.size)) {
+            tryDump(ArrayList(header.size)) {
                 add(id.toString())
                 val tileClass = TileEntity.REGISTRY.getObject(id)!!
                 add(tileClass.name)
                 add(ITickable::class.java.isAssignableFrom(tileClass).toPlusMinusString())
-                yield(this)
             }
         }
     }

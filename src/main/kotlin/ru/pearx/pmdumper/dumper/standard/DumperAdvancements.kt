@@ -1,11 +1,12 @@
 @file:JvmMultifileClass
 @file:JvmName("StandardDumpers")
+
 package ru.pearx.pmdumper.dumper.standard
 
 import net.minecraft.advancements.Advancement
 import net.minecraft.util.ResourceLocation
 import net.minecraftforge.common.DimensionManager
-import ru.pearx.pmdumper.*
+import ru.pearx.pmdumper.ID
 import ru.pearx.pmdumper.dumper.dumper
 import ru.pearx.pmdumper.utils.*
 
@@ -18,7 +19,7 @@ val DumperAdvancements = dumper {
     }
     iterator {
         for (adv in collectAdvancements()) {
-            with(ArrayList<String>(header.size)) {
+            tryDump(ArrayList(header.size)) {
                 with(adv) {
                     add(id.toString())
                     add(displayText.formattedText)
@@ -54,7 +55,6 @@ val DumperAdvancements = dumper {
                         add(function?.toString() ?: "")
                     }
                 }
-                yield(this)
             }
         }
     }

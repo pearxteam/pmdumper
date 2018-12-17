@@ -11,7 +11,7 @@ val modId: String by project
 val modVersion: String by project
 val modGroup: String by project
 val modDescription: String by project
-val modBuildNumber: String by project
+val modDependencies: String by project
 val jdkVersion: String by project
 val forgeVersion: String by project
 val mcpMappings: String by project
@@ -23,7 +23,7 @@ val projectEVersion: String by project
 val jeiVersion: String by project
 
 
-version = "$modVersion-$modBuildNumber"
+version = modVersion
 group = modGroup
 description = modDescription
 
@@ -34,6 +34,30 @@ configure<BasePluginConvention> {
 configure<JavaPluginConvention> {
     sourceCompatibility = JavaVersion.VERSION_1_8
 }
+
+configure<UserBaseExtension> {
+    version = "$mcVersion-$forgeVersion"
+    runDir = "run"
+    mappings = mcpMappings
+    replace("VERSION = \"\"", "VERSION = \"$modVersion\"")
+    replace("DESCRIPTION = \"\"", "DESCRIPTION = \"$modDescription\"")
+    replace("ACCEPTED_MINECRAFT_VERSIONS = \"\"", "ACCEPTED_MINECRAFT_VERSIONS = \"$acceptedMcVersions\"")
+    replace("DEPENDENCIES = \"\"", "DEPENDENCIES = \"$modDependencies\"")
+    replaceIn("Reference.kt")
+}
+
+tasks {
+    withType<KotlinCompile> {
+        kotlinOptions.jvmTarget = "1.$jdkVersion"
+        kotlinOptions.freeCompilerArgs = listOf("-Xno-param-assertions")
+    }
+    withType<Jar> {
+        manifest {
+            attributes(mapOf("FMLAT" to "pmdumper_at.cfg"))
+        }
+    }
+}
+
 repositories {
     maven { url = uri("https://maven.shadowfacts.net/") }
     maven { url = uri("https://minecraft.curseforge.com/api/maven") }
@@ -44,22 +68,4 @@ dependencies {
     "compile"("projecte:ProjectE:$projectEMcVersion:$projectEVersion")
     "compile"("net.shadowfacts:Forgelin:$forgelinVersion")
     "runtime"("mezz.jei:jei_$mcVersion:$jeiVersion")
-}
-
-configure<UserBaseExtension> {
-    version = "$mcVersion-$forgeVersion"
-    runDir = "run"
-    mappings = mcpMappings
-    replace("VERSION = \"\"", "VERSION = \"$version\"")
-    replace("DESCRIPTION = \"\"", "DESCRIPTION = \"$modDescription\"")
-    replace("ACCEPTED_MINECRAFT_VERSIONS = \"\"", "ACCEPTED_MINECRAFT_VERSIONS = \"$acceptedMcVersions\"")
-    replace("DEPENDENCIES = \"\"", "DEPENDENCIES = \"$acceptedMcVersions\"")
-    replaceIn("Reference.kt")
-}
-
-tasks {
-    withType<KotlinCompile> {
-        kotlinOptions.jvmTarget = "1.$jdkVersion"
-        kotlinOptions.freeCompilerArgs = listOf("-Xno-param-assertions")
-    }
 }

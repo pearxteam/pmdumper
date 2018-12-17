@@ -11,7 +11,7 @@ class DumperAmounts : MutableMap<String, Int> by hashMapOf() {
 
     operator fun plusAssign(value: ResourceLocation?) = plusAssign(value?.namespace ?: "null")
 
-    fun sort(): List<Pair<String, Int>> = toList().sortedByDescending { (k, v) -> v }
+    fun sort(): List<Pair<String, Int>> = toList().sortedByDescending { (_, v) -> v }
 }
 
 interface IDumper : IForgeRegistryEntry<IDumper> {

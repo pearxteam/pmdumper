@@ -1,5 +1,6 @@
 @file:JvmMultifileClass
 @file:JvmName("StandardDumpers")
+
 package ru.pearx.pmdumper.dumper.standard
 
 import net.minecraft.util.ResourceLocation
@@ -10,6 +11,7 @@ import ru.pearx.pmdumper.dumper.dumper
 import ru.pearx.pmdumper.utils.toHexColorString
 import ru.pearx.pmdumper.utils.toPlusMinusString
 import ru.pearx.pmdumper.utils.toTexturesPath
+import ru.pearx.pmdumper.utils.tryDump
 
 val DumperFluids = dumper {
     registryName = ResourceLocation(ID, "fluids")
@@ -20,7 +22,7 @@ val DumperFluids = dumper {
     }
     iterator {
         for (fluid in FluidRegistry.getRegisteredFluids().values) {
-            with(ArrayList<String>(header.size)) {
+            tryDump(ArrayList(header.size)) {
                 with(fluid) {
                     val stack = FluidStack(fluid, 1)
                     val modId = FluidRegistry.getModId(stack) ?: ""
@@ -43,7 +45,6 @@ val DumperFluids = dumper {
                     add(isLighterThanAir.toPlusMinusString())
                     add(canBePlacedInWorld().toPlusMinusString())
                 }
-                yield(this)
             }
         }
     }

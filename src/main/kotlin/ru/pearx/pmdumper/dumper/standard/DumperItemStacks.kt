@@ -1,5 +1,6 @@
 @file:JvmMultifileClass
 @file:JvmName("StandardDumpers")
+
 package ru.pearx.pmdumper.dumper.standard
 
 import moze_intel.projecte.utils.EMCHelper
@@ -11,12 +12,10 @@ import net.minecraft.util.ResourceLocation
 import net.minecraftforge.client.ItemModelMesherForge
 import net.minecraftforge.fml.common.Loader
 import net.minecraftforge.oredict.OreDictionary
-import ru.pearx.pmdumper.*
+import ru.pearx.pmdumper.ID
+import ru.pearx.pmdumper.PROJECTE_ID
 import ru.pearx.pmdumper.dumper.dumper
-import ru.pearx.pmdumper.utils.client
-import ru.pearx.pmdumper.utils.eachStack
-import ru.pearx.pmdumper.utils.ifOrNull
-import ru.pearx.pmdumper.utils.toPlusMinusString
+import ru.pearx.pmdumper.utils.*
 
 val DumperItemStacks = dumper {
     registryName = ResourceLocation(ID, "itemstacks")
@@ -28,7 +27,7 @@ val DumperItemStacks = dumper {
     }
     iterator {
         eachStack<Item> { item, stack ->
-            with(ArrayList<String>(header.size)) {
+            tryDump(ArrayList(header.size)) {
                 with(item) {
                     add(registryName.toString())
                     add(stack.metadata.toString())
@@ -54,7 +53,6 @@ val DumperItemStacks = dumper {
                     if (Loader.isModLoaded(PROJECTE_ID))
                         add(if (EMCHelper.doesItemHaveEmc(stack)) EMCHelper.getEmcValue(stack).toString() else "")
                 }
-                yield(this)
             }
         }
     }

@@ -1,5 +1,6 @@
 @file:JvmMultifileClass
 @file:JvmName("StandardDumpers")
+
 package ru.pearx.pmdumper.dumper.standard
 
 import net.minecraft.util.ResourceLocation
@@ -9,6 +10,7 @@ import ru.pearx.pmdumper.ID
 import ru.pearx.pmdumper.dumper.dumper
 import ru.pearx.pmdumper.utils.readField
 import ru.pearx.pmdumper.utils.toPath
+import ru.pearx.pmdumper.utils.tryDump
 
 val DumperVillagerProfessions = dumper {
     registryName = ResourceLocation(ID, "villager_professions")
@@ -19,7 +21,7 @@ val DumperVillagerProfessions = dumper {
     }
     iterator {
         for (profession in ForgeRegistries.VILLAGER_PROFESSIONS) {
-            with(ArrayList<String>(header.size)) {
+            tryDump(ArrayList(header.size)) {
                 with(profession) {
                     add(registryName.toString())
                     add(skin.toPath())
@@ -35,7 +37,6 @@ val DumperVillagerProfessions = dumper {
                         }
                     }.toString())
                 }
-                yield(this)
             }
         }
     }

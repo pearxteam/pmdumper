@@ -1,16 +1,14 @@
 @file:JvmMultifileClass
 @file:JvmName("StandardDumpers")
+
 package ru.pearx.pmdumper.dumper.standard
 
 import net.minecraft.entity.EnumCreatureType
 import net.minecraft.util.ResourceLocation
 import net.minecraftforge.fml.common.registry.ForgeRegistries
-import ru.pearx.pmdumper.*
+import ru.pearx.pmdumper.ID
 import ru.pearx.pmdumper.dumper.dumper
-import ru.pearx.pmdumper.utils.client
-import ru.pearx.pmdumper.utils.mutableListOfNotNull
-import ru.pearx.pmdumper.utils.toHexColorString
-import ru.pearx.pmdumper.utils.toPlusMinusString
+import ru.pearx.pmdumper.utils.*
 
 val DumperBiomes = dumper {
     registryName = ResourceLocation(ID, "biomes")
@@ -24,7 +22,7 @@ val DumperBiomes = dumper {
     }
     iterator {
         for (biome in ForgeRegistries.BIOMES) {
-            with(ArrayList<String>(header.size)) {
+            tryDump(ArrayList(header.size)) {
                 with(biome) {
                     add(registryName.toString())
                     client { add(biomeName) }
@@ -45,7 +43,6 @@ val DumperBiomes = dumper {
                         add(getSpawnableList(type).joinToString(separator = System.lineSeparator()))
                     }
                 }
-                yield(this)
             }
         }
     }

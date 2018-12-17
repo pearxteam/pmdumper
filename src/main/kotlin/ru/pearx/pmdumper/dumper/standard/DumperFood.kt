@@ -1,5 +1,6 @@
 @file:JvmMultifileClass
 @file:JvmName("StandardDumpers")
+
 package ru.pearx.pmdumper.dumper.standard
 
 import net.minecraft.item.ItemFood
@@ -9,6 +10,7 @@ import ru.pearx.pmdumper.dumper.dumper
 import ru.pearx.pmdumper.utils.eachStack
 import ru.pearx.pmdumper.utils.toFullString
 import ru.pearx.pmdumper.utils.toPlusMinusString
+import ru.pearx.pmdumper.utils.tryDump
 
 val DumperFood = dumper {
     registryName = ResourceLocation(ID, "food")
@@ -20,7 +22,7 @@ val DumperFood = dumper {
     }
     iterator {
         eachStack<ItemFood> { item, stack ->
-            with(ArrayList<String>(header.size)) {
+            tryDump(ArrayList(header.size)) {
                 with(item) {
                     add(stack.toFullString())
                     add(getHealAmount(stack).toString())
@@ -34,7 +36,6 @@ val DumperFood = dumper {
                     }
                     else repeat(2) { add("") }
                 }
-                yield(this)
             }
         }
     }

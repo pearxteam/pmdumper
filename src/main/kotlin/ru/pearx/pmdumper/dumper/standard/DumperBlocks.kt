@@ -1,11 +1,13 @@
 @file:JvmMultifileClass
 @file:JvmName("StandardDumpers")
+
 package ru.pearx.pmdumper.dumper.standard
 
 import net.minecraft.util.ResourceLocation
 import net.minecraftforge.fml.common.registry.ForgeRegistries
 import ru.pearx.pmdumper.ID
 import ru.pearx.pmdumper.dumper.dumper
+import ru.pearx.pmdumper.utils.tryDump
 
 val DumperBlocks = dumper {
     registryName = ResourceLocation(ID, "blocks")
@@ -16,14 +18,13 @@ val DumperBlocks = dumper {
     }
     iterator {
         for (block in ForgeRegistries.BLOCKS) {
-            with(ArrayList<String>(header.size)) {
+            tryDump(ArrayList(header.size)) {
                 with(block) {
                     add(registryName.toString())
                     add(this::class.java.name)
                     add(blockState.properties.toString())
                     add(blockState::class.java.name)
                 }
-                yield(this)
             }
         }
     }

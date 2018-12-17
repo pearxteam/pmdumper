@@ -1,5 +1,6 @@
 @file:JvmMultifileClass
 @file:JvmName("StandardDumpers")
+
 package ru.pearx.pmdumper.dumper.standard
 
 import net.minecraft.util.ResourceLocation
@@ -7,6 +8,7 @@ import net.minecraftforge.fml.common.registry.ForgeRegistries
 import ru.pearx.pmdumper.ID
 import ru.pearx.pmdumper.dumper.dumper
 import ru.pearx.pmdumper.utils.toHexColorString
+import ru.pearx.pmdumper.utils.tryDump
 
 val DumperEntities = dumper {
     registryName = ResourceLocation(ID, "entities")
@@ -17,7 +19,7 @@ val DumperEntities = dumper {
     }
     iterator {
         for (entity in ForgeRegistries.ENTITIES) {
-            with(ArrayList<String>(header.size)) {
+            tryDump(ArrayList(header.size)) {
                 with(entity) {
                     add(registryName.toString())
                     add(name)
@@ -25,7 +27,6 @@ val DumperEntities = dumper {
                     add(egg?.primaryColor?.toHexColorString() ?: "")
                     add(egg?.secondaryColor?.toHexColorString() ?: "")
                 }
-                yield(this)
             }
         }
     }

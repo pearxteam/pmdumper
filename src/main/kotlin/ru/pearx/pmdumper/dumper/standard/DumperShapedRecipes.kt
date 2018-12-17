@@ -9,6 +9,7 @@ import net.minecraftforge.fml.common.registry.ForgeRegistries
 import ru.pearx.pmdumper.ID
 import ru.pearx.pmdumper.dumper.dumper
 import ru.pearx.pmdumper.utils.toFullString
+import ru.pearx.pmdumper.utils.tryDump
 
 val DumperShapedRecipes = dumper {
     registryName = ResourceLocation(ID, "shaped_recipes")
@@ -21,53 +22,56 @@ val DumperShapedRecipes = dumper {
     }
     iterator {
         eachShaped { recipe ->
-            with(ArrayList<String>(header.size)) {
+            tryDump(ArrayList(header.size)) {
                 with(recipe) {
                     add(registryName.toString())
                     add(group)
+                    if(ingredients.isNotEmpty()) {
 
-                    val ingredientStrings = mutableListOf<String>().apply { ingredients.forEach { add(it.toFullString()) } }
-                    val patternMap = hashMapOf<String, Char>().apply {
-                        var lastChar = 'A'
-                        for (dist in ingredientStrings.distinct()) {
-                            if(!dist.isEmpty()) {
-                                this[dist] = lastChar
-                                lastChar++
+                        val ingredientStrings = mutableListOf<String>().apply { ingredients.forEach { add(it.toFullString()) } }
+                        val patternMap = hashMapOf<String, Char>().apply {
+                            var lastChar = 'A'
+                            for (dist in ingredientStrings.distinct()) {
+                                if (!dist.isEmpty()) {
+                                    this[dist] = lastChar
+                                    lastChar++
+                                }
                             }
                         }
+                        add(StringBuilder().apply {
+                            var start = true
+                            for (row in 0 until recipeHeight) {
+                                if (start)
+                                    start = false
+                                else
+                                    appendln()
+
+                                for (column in 0 until recipeWidth) {
+                                    val str = ingredientStrings[row * recipeWidth + column]
+                                    append(if (str.isEmpty()) "-" else patternMap[str])
+                                }
+                            }
+                        }.toString())
+                        add(StringBuilder().apply {
+                            var start = true
+                            for ((str, char) in patternMap.entries.sortedBy { it.value }) {
+                                if (start)
+                                    start = false
+                                else
+                                    appendln()
+
+                                append(char)
+                                append(": ")
+                                append(str)
+                            }
+                        }.toString())
                     }
-                    add(StringBuilder().apply {
-                        var start = true
-                        for (row in 0 until recipeHeight) {
-                            if(start)
-                                start = false
-                            else
-                                appendln()
-
-                            for (column in 0 until recipeWidth) {
-                                val str = ingredientStrings[row * recipeWidth + column]
-                                append(if(str.isEmpty()) "-" else patternMap[str])
-                            }
-                        }
-                    }.toString())
-                    add(StringBuilder().apply {
-                        var start = true
-                        for((str, char) in patternMap.entries.sortedBy { it.value }) {
-                            if(start)
-                                start = false
-                            else
-                                appendln()
-
-                            append(char)
-                            append(": ")
-                            append(str)
-                        }
-                    }.toString())
+                    else
+                        repeat(2) { add("") }
                     add(recipeOutput.toFullString())
                     add(recipeWidth.toString())
                     add(recipeHeight.toString())
                 }
-                yield(this)
             }
         }
     }

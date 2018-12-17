@@ -13,7 +13,7 @@ val ExporterCsvAmounts = fileExporter {
 
 val ExporterCsv = fileExporter {
     registryName = ResourceLocation(ID, "csv")
-    exporter { header, tableGetter, amountsGetter, directory, baseFilename -> listOf(dumpTable(header, tableGetter(), directory, baseFilename)) }
+    exporter { header, tableGetter, _, directory, baseFilename -> listOf(dumpTable(header, tableGetter(), directory, baseFilename)) }
 }
 
 val ExporterAmounts = fileExporter {

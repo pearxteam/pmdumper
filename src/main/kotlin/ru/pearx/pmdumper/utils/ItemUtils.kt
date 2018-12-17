@@ -55,12 +55,13 @@ fun Item.getSubItems(list: NonNullList<ItemStack>) {
 }
 
 fun Ingredient.appendTo(to: Appendable) {
-    if (matchingStacks.isNotEmpty()) {
+    val matchingStacksPublic = getMatchingStacks()
+    if (matchingStacksPublic.isNotEmpty()) {
         if (this is OreIngredient) {
             to.append("ore:")
             to.append(run {
                 val ores = readField<NonNullList<ItemStack>>("ores")
-                for (oreId in OreDictionary.getOreIDs(matchingStacks[0])) {
+                for (oreId in OreDictionary.getOreIDs(matchingStacksPublic[0])) {
                     val oreName = OreDictionary.getOreName(oreId)
                     val ores1 = OreDictionary.getOres(oreName)
                     if (ores == ores1)
@@ -70,18 +71,18 @@ fun Ingredient.appendTo(to: Appendable) {
             })
         }
         else {
-            val internalMatchingStacks = readField<Array<ItemStack>>("matchingStacks")
-            if (!internalMatchingStacks.isEmpty())
-                appendStackListOrSeparatedTo(to, internalMatchingStacks)
+            val matchingStacksInternal = matchingStacks
+            if (!matchingStacksInternal.isEmpty())
+                appendStackListOrSeparatedTo(to, matchingStacksInternal)
             else
-                appendStackListOrSeparatedTo(to, matchingStacks)
+                appendStackListOrSeparatedTo(to, matchingStacksPublic)
         }
     }
 }
 
 private fun appendStackListOrSeparatedTo(to: Appendable, stacks: Array<ItemStack>) {
     var startStacks = true
-    for(stack in stacks) {
+    for (stack in stacks) {
         if (startStacks)
             startStacks = false
         else

@@ -31,8 +31,8 @@ class PMDumperCommand : CommandBase() {
             throw createWrongUsageException(sender)
 
         val dumperName = args[0]
-        if(dumperName == "all") {
-            for(dmpr in DumperRegistry)
+        if (dumperName == "all") {
+            for (dmpr in DumperRegistry)
                 createDump(sender, dmpr, exporters[0])
         }
         else {

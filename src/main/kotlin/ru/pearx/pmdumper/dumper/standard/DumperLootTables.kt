@@ -1,5 +1,6 @@
 @file:JvmMultifileClass
 @file:JvmName("StandardDumpers")
+
 package ru.pearx.pmdumper.dumper.standard
 
 import com.google.gson.GsonBuilder
@@ -26,7 +27,6 @@ val DumperLootTables = dumper {
             with(ArrayList<String>(header.size)) {
                 add(loc.toString())
                 add(gs.toJson(manager.getLootTableFromLocation(loc)))
-                yield(this)
             }
         }
     }

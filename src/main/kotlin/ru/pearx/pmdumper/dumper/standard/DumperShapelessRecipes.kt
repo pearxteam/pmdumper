@@ -1,5 +1,6 @@
 @file:JvmMultifileClass
 @file:JvmName("StandardDumpers")
+
 package ru.pearx.pmdumper.dumper.standard
 
 import net.minecraft.item.crafting.IRecipe
@@ -10,6 +11,7 @@ import ru.pearx.pmdumper.ID
 import ru.pearx.pmdumper.dumper.dumper
 import ru.pearx.pmdumper.utils.appendTo
 import ru.pearx.pmdumper.utils.toFullString
+import ru.pearx.pmdumper.utils.tryDump
 
 val DumperShapelessRecipes = dumper {
     registryName = ResourceLocation(ID, "shapeless_recipes")
@@ -22,7 +24,7 @@ val DumperShapelessRecipes = dumper {
     }
     iterator {
         eachShapeless { recipe ->
-            with(ArrayList<String>(header.size)) {
+            tryDump(ArrayList(header.size)) {
                 with(recipe) {
                     add(registryName.toString())
                     add(group)
@@ -39,7 +41,6 @@ val DumperShapelessRecipes = dumper {
                     }.toString())
                     add(recipeOutput.toFullString())
                 }
-                yield(this)
             }
         }
     }

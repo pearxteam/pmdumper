@@ -1,5 +1,6 @@
 @file:JvmMultifileClass
 @file:JvmName("StandardDumpers")
+
 package ru.pearx.pmdumper.dumper.standard
 
 import net.minecraft.util.ResourceLocation
@@ -7,6 +8,7 @@ import net.minecraftforge.fml.common.registry.ForgeRegistries
 import ru.pearx.pmdumper.ID
 import ru.pearx.pmdumper.dumper.dumper
 import ru.pearx.pmdumper.utils.toPlusMinusString
+import ru.pearx.pmdumper.utils.tryDump
 
 val DumperEnchantments = dumper {
     registryName = ResourceLocation(ID, "enchantments")
@@ -17,7 +19,7 @@ val DumperEnchantments = dumper {
     }
     iterator {
         for (ench in ForgeRegistries.ENCHANTMENTS) {
-            with(ArrayList<String>(header.size)) {
+            tryDump(ArrayList(header.size)) {
                 with(ench) {
                     add(registryName.toString())
                     add(name)
@@ -39,7 +41,6 @@ val DumperEnchantments = dumper {
                         }
                     }.toString())
                 }
-                yield(this)
             }
         }
     }
